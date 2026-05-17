@@ -1,7 +1,5 @@
-import axios from "axios";
+import apiClient from "@/lib/axios";
 import Cookies from "js-cookie";
-
-const API_BASE_URL = "https://api.comicsmithai.net/api";
 
 export interface LoginCredentials {
   email: string;
@@ -34,24 +32,7 @@ export interface RegisterResponse {
   email: string;
 }
 
-// Axios instance
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    accept: "application/json",
-    "Content-Type": "application/json",
-  },
-});
-
-apiClient.interceptors.request.use((config) => {
-  const token = Cookies.get("access_token");
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-});
+// ✂️ Removed local apiClient — now using the shared instance from api-client.ts
 
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
@@ -59,7 +40,6 @@ export const authService = {
       "/admin/login",
       credentials,
     );
-
     return response.data;
   },
 
@@ -73,7 +53,6 @@ export const authService = {
       "/admin/create",
       payload,
     );
-
     return response.data;
   },
 
@@ -84,11 +63,10 @@ export const authService = {
 
   saveAuth: (authData: AuthResponse) => {
     Cookies.set("access_token", authData.access_token, {
-      expires: 7, // 7 days
+      expires: 7,
       secure: true,
       sameSite: "strict",
     });
-
     localStorage.setItem("user", JSON.stringify(authData.admin));
   },
 
@@ -96,7 +74,6 @@ export const authService = {
     const token = Cookies.get("access_token");
     const userStr = localStorage.getItem("user");
     const user = userStr ? JSON.parse(userStr) : null;
-
     return { token, user };
   },
 };

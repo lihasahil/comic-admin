@@ -60,13 +60,9 @@ export const useLogout = () => {
       return Promise.resolve();
     },
     onSuccess: () => {
-      setAuth({
-        user: null,
-        token: null,
-        isAuthenticated: false,
-      });
+      setAuth({ user: null, token: null, isAuthenticated: false });
       queryClient.clear();
-      router.push("/login");
+      window.location.href = "/login";
     },
   });
 };

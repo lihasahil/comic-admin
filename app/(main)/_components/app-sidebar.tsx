@@ -28,6 +28,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useLogout } from "@/hooks/use-auth";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -42,6 +43,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const { user } = useAuth();
+  const { mutate: logout } = useLogout();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -229,6 +231,7 @@ export function AppSidebar() {
                 <button
                   type="button"
                   onClick={() => {
+                    logout();
                     setDropdownOpen(false);
                   }}
                   className="flex items-center gap-2.5 w-full px-3 py-2.5 text-[13px] font-inter text-red-400 hover:bg-[rgba(255,255,255,0.05)] transition-colors"
