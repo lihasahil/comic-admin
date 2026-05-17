@@ -1,10 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import {
-  authService,
-  LoginCredentials,
-  RegisterCredentials,
-} from "@/services/auth.service";
+import { authService, LoginCredentials } from "@/services/auth.service";
 import { useAuth } from "@/contexts/auth-context";
 
 export const useLogin = () => {
@@ -32,25 +28,7 @@ export const useLogin = () => {
   });
 };
 
-export const useRegister = () => {
-  const router = useRouter();
-
-  return useMutation({
-    mutationFn: (credentials: RegisterCredentials) =>
-      authService.register(credentials),
-    onSuccess: (data) => {
-      console.log("Registration successful:", data);
-      router.push("/login?registered=true");
-    },
-    onError: (error: any) => {
-      console.error("Registration failed:", error);
-      throw error;
-    },
-  });
-};
-
 export const useLogout = () => {
-  const router = useRouter();
   const { setAuth } = useAuth();
   const queryClient = useQueryClient();
 
