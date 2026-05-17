@@ -6,7 +6,7 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden py-8">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Blue glow top-right */}
       <div
         className="absolute pointer-events-none"
