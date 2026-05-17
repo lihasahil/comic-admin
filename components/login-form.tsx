@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import {
@@ -145,13 +144,6 @@ export default function LoginForm() {
             >
               {loginMutation.isPending ? "Signing in..." : "Sign In"}
             </Button>
-
-            <p className="font-inter text-[#F2F2F2] text-[12px] text-center">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-[#C3F001] hover:underline">
-                Sign up
-              </Link>
-            </p>
           </form>
         </Form>
       </div>

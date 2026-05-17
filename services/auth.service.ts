@@ -6,16 +6,6 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface RegisterCredentials {
-  email: string;
-  password: string;
-  full_name: string;
-}
-
-type RegisterPayload = RegisterCredentials & {
-  superadmin_key: string;
-};
-
 export interface AuthResponse {
   access_token: string;
   token_type: string;
@@ -26,32 +16,11 @@ export interface AuthResponse {
   };
 }
 
-export interface RegisterResponse {
-  success: boolean;
-  user_id: number;
-  email: string;
-}
-
-// ✂️ Removed local apiClient — now using the shared instance from api-client.ts
-
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     const response = await apiClient.post<AuthResponse>(
       "/admin/login",
       credentials,
-    );
-    return response.data;
-  },
-
-  register: async (credentials: RegisterCredentials) => {
-    const payload: RegisterPayload = {
-      ...credentials,
-      superadmin_key: process.env.NEXT_PUBLIC_SUPERADMIN_KEY!,
-    };
-
-    const response = await apiClient.post<RegisterResponse>(
-      "/admin/create",
-      payload,
     );
     return response.data;
   },
