@@ -48,7 +48,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#111111] p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div
         className="w-full max-w-md lg:max-w-lg xl:w-149 shrink-0 flex flex-col px-4 py-7 lg:px-10 lg:py-7 items-center gap-5 rounded-[18px] border border-[#888888]"
         style={{ background: "rgba(17, 17, 17, 0.7)" }}
