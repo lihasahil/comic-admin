@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Defect } from "@/services/submissionService";
-import SeverityBadge from "./SeverityBadge";
+import SeverityBadge from "./severity-badge";
 import Image from "next/image";
 
 interface Props {

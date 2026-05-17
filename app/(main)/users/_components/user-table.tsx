@@ -1,5 +1,5 @@
 import { User } from "@/services/userService";
-import UserRoleBadge from "./UserRoleBadge";
+import UserRoleBadge from "./user-role-badge";
 import { Coins, ScanLine, Library, MessageSquareCheck } from "lucide-react";
 
 interface Props {

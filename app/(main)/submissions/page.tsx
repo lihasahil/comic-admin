@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { submissionKeys } from "@/hooks/useSubmissions";
 import { SubmissionStatus } from "@/services/submissionService";
 import { RefreshCw, ScanLine, Loader2 } from "lucide-react";
-import SubmissionCard from "./_components/SubmissionCard";
+import SubmissionCard from "./_components/submission-card";
 
 type Filter = SubmissionStatus | "all";
 

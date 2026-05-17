@@ -2,8 +2,8 @@
 
 import { Feedback } from "@/services/feedbackService";
 import { useFeedbackActions } from "@/hooks/useFeedback";
-import StatusBadge from "./StatusBadge";
-import ImageGallery from "./ImageGallery";
+import StatusBadge from "./status-badge";
+import ImageGallery from "./image-gallery";
 import { Check, X, User, Clock, Loader2 } from "lucide-react";
 
 interface Props {

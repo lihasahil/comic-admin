@@ -6,9 +6,9 @@ import { useFeedbacks, FeedbackStatus } from "@/hooks/useFeedback";
 import { RefreshCw, MessageSquareDashed, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { feedbackKeys } from "@/hooks/useFeedback";
-import FeedbackStats from "./_components/FeedbackStats";
-import FeedbackFilter from "./_components/FeedbackFilter";
-import FeedbackCard from "./_components/FeedbackCard";
+import FeedbackStats from "./_components/feedback-stats";
+import FeedbackFilter from "./_components/feedback-filter";
+import FeedbackCard from "./_components/feedback-card";
 
 type FilterOption = FeedbackStatus | "all";
 

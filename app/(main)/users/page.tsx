@@ -7,9 +7,9 @@ import { userKeys } from "@/hooks/useUsers";
 
 import { RefreshCw, Users, Loader2 } from "lucide-react";
 import { UserRole } from "@/services/userService";
-import UserFilter, { RoleFilter } from "./_components/UserFilter";
-import UserStats from "./_components/UserStats";
-import UserTable from "./_components/UserTable";
+import UserFilter, { RoleFilter } from "./_components/user-filter";
+import UserStats from "./_components/user-stats";
+import UserTable from "./_components/user-table";
 
 const LIMIT = 50;
 

@@ -14,9 +14,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import DefectMap from "../_components/DefectMap";
-import GradeComparison from "../_components/GradeComparison";
-import ReviewPanel from "../_components/ReviewPanel";
+import DefectMap from "../_components/defect-map";
+import GradeComparison from "../_components/garde-comparison";
+import ReviewPanel from "../_components/review-panel";
 
 function Field({
   label,
