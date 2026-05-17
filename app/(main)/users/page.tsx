@@ -147,14 +147,14 @@ export default function UsersPage() {
               <button
                 disabled={offset === 0}
                 onClick={() => setOffset(Math.max(0, offset - LIMIT))}
-                className="px-3 py-1.5 rounded-lg text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="px-3 py-1.5 rounded-lg text-xs font-michroma bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 Previous
               </button>
               <button
                 disabled={currentPage >= totalPages}
                 onClick={() => setOffset(offset + LIMIT)}
-                className="px-3 py-1.5 rounded-lg text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="px-3 py-1.5 rounded-lg text-xs bg-zinc-900 font-michroma border border-zinc-800 text-zinc-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 Next
               </button>

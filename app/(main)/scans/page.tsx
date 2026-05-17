@@ -1,5 +1,11 @@
-function ScanPage() {
-  return <div>No data coming from api</div>;
-}
+"use client";
 
-export default ScanPage;
+import ScanList from "./_components/scan-list";
+
+export default function ScansPage() {
+  return (
+    <div className="min-h-screen">
+      <ScanList />
+    </div>
+  );
+}
