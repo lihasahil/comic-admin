@@ -7,7 +7,7 @@ import { ScanStatus } from "@/services/scan.service";
 import { useScans } from "@/hooks/use-scan";
 import ScanCard from "./scan-card";
 
-const LIMIT = 50;
+const LIMIT = 10;
 
 export default function ScanList() {
   const [status, setStatus] = useState<ScanStatus | "all">("all");
@@ -125,7 +125,7 @@ export default function ScanList() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-2">
-              <p className="text-xs text-zinc-600">
+              <p className="text-xs font-sf-pro text-[#888888]">
                 Page {currentPage} of {totalPages} · {total} total
               </p>
               <div className="flex items-center gap-2">

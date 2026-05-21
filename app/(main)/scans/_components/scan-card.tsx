@@ -12,6 +12,11 @@ const statusConfig = {
     className: "bg-green-100 text-green-700 border-green-200",
     label: "Completed",
   },
+  completed: {
+    icon: CheckCircle2,
+    className: "bg-green-100 text-green-700 border-green-200",
+    label: "Completed",
+  },
   processing: {
     icon: Clock,
     className: "bg-blue-100 text-blue-700 border-blue-200",

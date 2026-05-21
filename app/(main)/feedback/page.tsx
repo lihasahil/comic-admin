@@ -50,7 +50,7 @@ export default function FeedbackPage() {
             <h1 className="text-2xl font-bold font-michroma tracking-tight text-[#F1F1F1]">
               Feedback
             </h1>
-            <p className="text-sm text-[#888888] mt-1">
+            <p className="text-sm font-sf-pro text-[#888888] mt-1">
               Review and moderate user-submitted feedback
             </p>
           </div>
@@ -112,7 +112,7 @@ export default function FeedbackPage() {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between pt-2">
-            <p className="text-xs text-zinc-600">
+            <p className="text-xs text-[#888888] font-sf-pro">
               Page {currentPage} of {totalPages} · {total} total
             </p>
             <div className="flex items-center gap-2">

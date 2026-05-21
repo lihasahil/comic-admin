@@ -140,7 +140,7 @@ export default function UsersPage() {
         {/* Pagination */}
         {totalPages > 1 && !search && (
           <div className="flex items-center justify-between pt-2">
-            <p className="text-xs text-zinc-600">
+            <p className="text-xs text-[#888888] font-sf-pro">
               Page {currentPage} of {totalPages} · {total} total
             </p>
             <div className="flex items-center gap-2">
