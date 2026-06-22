@@ -10,6 +10,7 @@ import {
   User2,
   Scan,
   CheckCircle,
+  BookOpen,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,7 @@ const navItems = [
   { href: "/feedback", label: "Feedback", icon: CheckCircle },
   { href: "/scans", label: "Scan", icon: Scan },
   { href: "/submissions", label: "Defect Submissions", icon: Lightbulb },
+  { href: "/catalog", label: "Comic Catalog", icon: BookOpen },
 ];
 
 export function AppSidebar() {
