@@ -24,7 +24,7 @@ export default function DefectMap({ imageUrl, defects }: Props) {
   return (
     <div className="space-y-3">
       {/* Image with overlay pins */}
-      <div className="relative rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900">
+      <div className="relative rounded-xl border border-zinc-800 bg-zinc-900">
         <div className="relative w-full" style={{ paddingBottom: "150%" }}>
           <Image
             src={imageUrl}
@@ -70,7 +70,7 @@ export default function DefectMap({ imageUrl, defects }: Props) {
                     ? "translate(-50%, -120%)"
                     : "translate(-50%, 30px)",
               }}
-              className="z-20 pointer-events-none bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 min-w-44 shadow-xl"
+              className="pointer-events-none z-9999 bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 min-w-44 shadow-xl"
             >
               <div className="text-xs font-medium font-sf-pro text-zinc-200 mb-1">
                 {active.display_name}

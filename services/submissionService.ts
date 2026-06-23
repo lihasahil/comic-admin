@@ -23,7 +23,7 @@ export interface Defect {
 
 export interface ComicScan {
   comic_scan_id: string;
-  barcode: string;
+  barcode: string | null;
   manual_comic_info: {
     title: string;
     issue_number: string;
@@ -33,6 +33,12 @@ export interface ComicScan {
   combined_grade_value: string;
   combined_grade_label: string;
   overall_condition: string | null;
+}
+
+export interface SubmissionImage {
+  image_url: string;
+  defects: Defect[];
+  review: string | null;
 }
 
 export interface SubmissionListItem {
@@ -50,11 +56,19 @@ export interface SubmissionListItem {
   created_at: string;
 }
 
-export interface SubmissionDetail extends SubmissionListItem {
+export interface SubmissionDetail {
+  submission_id: string;
+  status: SubmissionStatus;
+  created_at: string;
   updated_at: string;
-  angle_image_paths: Record<string, string>;
-  defects: Defect[];
+  images: Record<string, SubmissionImage>;
+  user_grade_value: number;
+  user_grade_label: string;
+  ai_grade_value: string;
+  ai_grade_label: string;
+  user: SubmissionUser;
   comic_scan: ComicScan;
+  admin_notes: string | null;
   reviewed_by: string | null;
 }
 
