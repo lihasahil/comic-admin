@@ -7,6 +7,7 @@ export interface CatalogListItem {
   series_name: string;
   issue_number: string;
   volume: string | null;
+  cover_artist: string | null;
   publisher_name: string;
   publication_year: string;
   publication_month: string;
@@ -59,8 +60,37 @@ export interface CatalogDetail extends CatalogListItem {
   price_grade_98: number | null;
   price_grade_100: number | null;
   price_last_updated: string | null;
+  pricing_snapshot: PricingSnapshot | null;
   imported_at: string;
   updated_at: string;
+}
+
+// ─── Pricing Snapshot ────────────────────────────────────────────────────────
+
+export interface PricingSellRange {
+  low: number;
+  high: number;
+}
+
+export interface PricingGrade {
+  grade: string;
+  label: string;
+  type: "real" | "extrap" | "est" | "highvar";
+  raw: { est_value: number; source: string };
+  graded: { cgc_value: number; source: string };
+  sell_trade: {
+    dealer_offer: PricingSellRange;
+    bulk_lot: PricingSellRange;
+    convention: PricingSellRange;
+    store_credit: PricingSellRange;
+  };
+}
+
+export interface PricingSnapshot {
+  loose_price: number;
+  updated_at: string;
+  total_grades: number;
+  grades: PricingGrade[];
 }
 
 export interface CatalogSearchResponse {
@@ -118,20 +148,22 @@ export interface ComicCreatePayload {
   cover_image?: File;
 }
 
-export type ComicUpdatePayload = Partial<Omit<ComicCreatePayload, "cover_image"> & {
-  image_url?: string;
-  market_price_loose?: number;
-  market_price_complete?: number;
-  market_price_new?: number;
-  market_price_graded?: number;
-  price_grade_40?: number;
-  price_grade_60?: number;
-  price_grade_80?: number;
-  price_grade_92?: number;
-  price_grade_94?: number;
-  price_grade_98?: number;
-  price_grade_100?: number;
-}>;
+export type ComicUpdatePayload = Partial<
+  Omit<ComicCreatePayload, "cover_image"> & {
+    image_url?: string;
+    market_price_loose?: number;
+    market_price_complete?: number;
+    market_price_new?: number;
+    market_price_graded?: number;
+    price_grade_40?: number;
+    price_grade_60?: number;
+    price_grade_80?: number;
+    price_grade_92?: number;
+    price_grade_94?: number;
+    price_grade_98?: number;
+    price_grade_100?: number;
+  }
+>;
 
 export interface ComicMutationResponse {
   success: boolean;
@@ -143,25 +175,25 @@ export interface ComicMutationResponse {
 
 export const catalogService = {
   search: async (
-    params: CatalogSearchParams = {}
+    params: CatalogSearchParams = {},
   ): Promise<CatalogSearchResponse> => {
     const { limit = 20, offset = 0, key_issue_only = false, ...rest } = params;
     const response = await apiClient.get<CatalogSearchResponse>(
       "/admin/catalog/search",
-      { params: { limit, offset, key_issue_only, ...rest } }
+      { params: { limit, offset, key_issue_only, ...rest } },
     );
     return response.data;
   },
 
   getComic: async (id: number | string): Promise<CatalogDetail> => {
     const response = await apiClient.get<CatalogDetail>(
-      `/admin/catalog/comics/${id}`
+      `/admin/catalog/comics/${id}`,
     );
     return response.data;
   },
 
   createComic: async (
-    payload: ComicCreatePayload
+    payload: ComicCreatePayload,
   ): Promise<ComicMutationResponse> => {
     const form = new FormData();
     (Object.keys(payload) as (keyof ComicCreatePayload)[]).forEach((key) => {
@@ -176,14 +208,14 @@ export const catalogService = {
     const response = await apiClient.post<ComicMutationResponse>(
       "/admin/catalog/comics",
       form,
-      { headers: { "Content-Type": "multipart/form-data" } }
+      { headers: { "Content-Type": "multipart/form-data" } },
     );
     return response.data;
   },
 
   updateComic: async (
     id: number | string,
-    payload: ComicUpdatePayload
+    payload: ComicUpdatePayload,
   ): Promise<ComicMutationResponse> => {
     const clean: Record<string, unknown> = {};
     (Object.keys(payload) as (keyof ComicUpdatePayload)[]).forEach((key) => {
@@ -192,7 +224,7 @@ export const catalogService = {
     });
     const response = await apiClient.patch<ComicMutationResponse>(
       `/admin/catalog/comics/${id}`,
-      clean
+      clean,
     );
     return response.data;
   },

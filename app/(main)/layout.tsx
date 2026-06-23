@@ -19,15 +19,15 @@ export default function MainLayout({
   const pathname = usePathname();
   const navigate = useRouter();
   const scrollContainerRef = useRef<HTMLElement>(null);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
   // ── Auth guard ───────────────────────────────────────────────────────────────
   useEffect(() => {
+    if (loading) return;
     if (!isAuthenticated) {
       navigate.replace("/login");
-      return;
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, loading, navigate]);
 
   // Reset scroll on route change
   useLayoutEffect(() => {
@@ -36,10 +36,7 @@ export default function MainLayout({
     }
   }, [pathname]);
 
-  // Guards
-
-  // Not logged in — useEffect redirects to /sign-in
-  if (!isAuthenticated) return null;
+  if (loading || !isAuthenticated) return null;
 
   return (
     <SidebarProvider

@@ -1,4 +1,4 @@
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { userService, UserListParams } from "@/services/userService";
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
@@ -20,5 +20,18 @@ export function useUsers(params: UserListParams = {}) {
     queryFn: () => userService.getUsers(params),
     placeholderData: keepPreviousData,
     staleTime: 30_000,
+  });
+}
+
+/**
+ * Permanently delete a user by ID.
+ */
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: number) => userService.deleteUser(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+    },
   });
 }

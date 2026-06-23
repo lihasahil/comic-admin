@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useCatalogComic } from "@/hooks/useCatalog";
+import { useComicValueData } from "@/hooks/use-comic-detail";
 import {
   ArrowLeft,
   Loader2,
@@ -14,6 +15,7 @@ import {
   Pencil,
 } from "lucide-react";
 import ComicFormModal from "../_components/comic-form-modal";
+import { EstimatedConditionTab } from "../_components/estimated-condition-tab";
 
 function Field({
   label,
@@ -56,7 +58,8 @@ export default function CatalogDetailPage() {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
 
-  const { data, isLoading, isError } = useCatalogComic(id);
+  const { data, isLoading, isError, error } = useCatalogComic(id);
+  const valueData = useComicValueData(data);
 
   if (isLoading) {
     return (
@@ -101,36 +104,36 @@ export default function CatalogDetailPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
         <div className="flex items-center gap-4 min-w-0">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-1.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-2 text-sm text-zinc-500 hover:text-white transition-colors shrink-0"
-        >
-          <ArrowLeft size={14} />
-        </button>
-        <div className="flex flex-col min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl font-bold font-michroma text-[#FFFFFF]">
-              {data.series_name} #{data.issue_number}
-            </h1>
-            {data.key_issue_status && (
-              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-[#C3F001]/10 text-[#C3F001] ring-1 ring-[#C3F001]/25">
-                <Star size={8} className="fill-[#C3F001]" /> Key Issue
-              </span>
-            )}
-            {data.is_variant && (
-              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-zinc-800 text-zinc-400 ring-1 ring-zinc-700">
-                Variant
-              </span>
-            )}
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-1.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-2 text-sm text-zinc-500 hover:text-white transition-colors shrink-0"
+          >
+            <ArrowLeft size={14} />
+          </button>
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl font-bold font-michroma text-[#FFFFFF]">
+                {data.series_name} #{data.issue_number}
+              </h1>
+              {data.key_issue_status && (
+                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-[#C3F001]/10 text-[#C3F001] ring-1 ring-[#C3F001]/25">
+                  <Star size={8} className="fill-[#C3F001]" /> Key Issue
+                </span>
+              )}
+              {data.is_variant && (
+                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-zinc-800 text-zinc-400 ring-1 ring-zinc-700">
+                  Variant
+                </span>
+              )}
+            </div>
+            <p className="text-xs font-sf-pro text-[#888888] mt-0.5">
+              {data.publisher_name} · {data.publication_year}
+              {data.publication_month
+                ? ` / ${data.publication_month.padStart(2, "0")}`
+                : ""}{" "}
+              · ID {data.id}
+            </p>
           </div>
-          <p className="text-xs font-sf-pro text-[#888888] mt-0.5">
-            {data.publisher_name} · {data.publication_year}
-            {data.publication_month
-              ? ` / ${data.publication_month.padStart(2, "0")}`
-              : ""}{" "}
-            · ID {data.id}
-          </p>
-        </div>
         </div>
 
         <button
@@ -162,13 +165,9 @@ export default function CatalogDetailPage() {
               <dl className="space-y-2.5 font-sf-pro flex-1 grid grid-cols-3 min-w-0">
                 <Field label="Series" value={data.series_name} />
                 <Field label="Issue Number" value={data.issue_number} />
-                {data.volume && (
-                  <Field label="Volume" value={data.volume} />
-                )}
+                {data.volume && <Field label="Volume" value={data.volume} />}
                 <Field label="Publisher" value={data.publisher_name} />
-                {data.imprint && (
-                  <Field label="Imprint" value={data.imprint} />
-                )}
+                {data.imprint && <Field label="Imprint" value={data.imprint} />}
                 <Field
                   label="Publication"
                   value={`${data.publication_year}${data.publication_month ? ` / ${data.publication_month.padStart(2, "0")}` : ""}`}
@@ -179,14 +178,21 @@ export default function CatalogDetailPage() {
                   <Field label="Cover Artist" value={data.cover_artist} />
                 )}
                 {data.page_count && (
-                  <Field label="Page Count" value={`${data.page_count} pages`} />
+                  <Field
+                    label="Page Count"
+                    value={`${data.page_count} pages`}
+                  />
                 )}
               </dl>
             </div>
           </div>
 
           {/* Physical details */}
-          {(data.dimensions || data.paper_stock || data.binding_type || data.cover_type || data.printing_edition) && (
+          {(data.dimensions ||
+            data.paper_stock ||
+            data.binding_type ||
+            data.cover_type ||
+            data.printing_edition) && (
             <div className="rounded-xl bg-[#111111B2] border border-[#FFFFFF33] p-4">
               <p className="text-xs text-[#F1F1F1] font-michroma uppercase tracking-wider font-medium mb-3">
                 Physical Details
@@ -215,13 +221,28 @@ export default function CatalogDetailPage() {
                 Editorial Notes
               </p>
               <dl className="space-y-3 font-sf-pro">
-                <Field label="Cover Description" value={data.cover_description} />
-                <Field label="First Appearances" value={data.first_appearances} />
+                <Field
+                  label="Cover Description"
+                  value={data.cover_description}
+                />
+                <Field
+                  label="First Appearances"
+                  value={data.first_appearances}
+                />
                 <Field label="Origin Stories" value={data.origin_stories} />
-                <Field label="Death / Return" value={data.death_return_characters} />
-                <Field label="Costume / Identity Changes" value={data.costume_identity_changes} />
+                <Field
+                  label="Death / Return"
+                  value={data.death_return_characters}
+                />
+                <Field
+                  label="Costume / Identity Changes"
+                  value={data.costume_identity_changes}
+                />
                 <Field label="Crossover Events" value={data.crossover_events} />
-                <Field label="Historic Significance" value={data.historic_significance} />
+                <Field
+                  label="Historic Significance"
+                  value={data.historic_significance}
+                />
                 <Field label="Additional Notes" value={data.additional_notes} />
               </dl>
             </div>
@@ -230,51 +251,6 @@ export default function CatalogDetailPage() {
 
         {/* Right column */}
         <div className="space-y-4">
-          {/* Market prices */}
-          {hasMarketPrices && (
-            <div className="rounded-xl bg-[#111111B2] border border-[#FFFFFF33] p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <DollarSign size={13} className="text-[#C3F001]" />
-                <p className="text-xs text-[#F1F1F1] font-michroma uppercase tracking-wider font-medium">
-                  Market Prices
-                </p>
-              </div>
-              <PriceRow label="Loose" value={data.market_price_loose} />
-              <PriceRow label="Complete" value={data.market_price_complete} />
-              <PriceRow label="New / Sealed" value={data.market_price_new} />
-              <PriceRow label="Graded" value={data.market_price_graded} />
-              {data.price_last_updated && (
-                <p className="text-[10px] text-zinc-700 font-sf-pro mt-2.5">
-                  Updated{" "}
-                  {new Date(data.price_last_updated).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Grade prices */}
-          {hasGradePrices && (
-            <div className="rounded-xl bg-[#111111B2] border border-[#FFFFFF33] p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Tag size={13} className="text-zinc-400" />
-                <p className="text-xs text-[#F1F1F1] font-michroma uppercase tracking-wider font-medium">
-                  Prices by Grade
-                </p>
-              </div>
-              <PriceRow label="4.0 (VG)" value={data.price_grade_40} />
-              <PriceRow label="6.0 (FN)" value={data.price_grade_60} />
-              <PriceRow label="8.0 (VF)" value={data.price_grade_80} />
-              <PriceRow label="9.2 (NM-)" value={data.price_grade_92} />
-              <PriceRow label="9.4 (NM)" value={data.price_grade_94} />
-              <PriceRow label="9.8 (NM/MT)" value={data.price_grade_98} />
-              <PriceRow label="10.0 (GM)" value={data.price_grade_100} />
-            </div>
-          )}
-
           {/* Identifiers */}
           <div className="rounded-xl bg-[#111111B2] border border-[#FFFFFF33] p-4">
             <p className="text-xs text-[#F1F1F1] font-michroma uppercase tracking-wider font-medium mb-3">
@@ -305,50 +281,48 @@ export default function CatalogDetailPage() {
                 <Field label="PriceCharting ID" value={data.pricecharting_id} />
               )}
               {data.total_variant_count > 0 && (
-                <Field
-                  label="Variant Count"
-                  value={data.total_variant_count}
-                />
+                <Field label="Variant Count" value={data.total_variant_count} />
               )}
             </dl>
           </div>
 
           {/* Distribution */}
-          {(data.distribution_type || data.regional_variants || data.recall_pulped || data.low_distribution_status || data.print_run_numbers) && (
+          {(data.distribution_type ||
+            data.regional_variants ||
+            data.recall_pulped ||
+            data.low_distribution_status ||
+            data.print_run_numbers) && (
             <div className="rounded-xl bg-[#111111B2] border border-[#FFFFFF33] p-4">
               <p className="text-xs text-[#F1F1F1] font-michroma uppercase tracking-wider font-medium mb-3">
                 Distribution
               </p>
               <dl className="space-y-2.5 font-sf-pro">
-                <Field label="Distribution Type" value={data.distribution_type} />
-                <Field label="Regional Variants" value={data.regional_variants} />
+                <Field
+                  label="Distribution Type"
+                  value={data.distribution_type}
+                />
+                <Field
+                  label="Regional Variants"
+                  value={data.regional_variants}
+                />
                 <Field label="Recall / Pulped" value={data.recall_pulped} />
-                <Field label="Low Distribution" value={data.low_distribution_status} />
+                <Field
+                  label="Low Distribution"
+                  value={data.low_distribution_status}
+                />
                 <Field label="Print Run" value={data.print_run_numbers} />
               </dl>
             </div>
           )}
-
-          {/* Timestamps */}
-          <div className="text-[10px] text-zinc-700 font-sf-pro px-1 space-y-0.5">
-            <p>
-              Imported{" "}
-              {new Date(data.imported_at).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </p>
-            <p>
-              Updated{" "}
-              {new Date(data.updated_at).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </p>
-          </div>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <EstimatedConditionTab
+          data={valueData}
+          isLoading={isLoading}
+          error={isError ? (error as Error) : null}
+        />
       </div>
 
       <ComicFormModal

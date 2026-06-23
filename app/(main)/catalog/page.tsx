@@ -12,6 +12,7 @@ export default function CatalogPage() {
   const [query, setQuery] = useState("");
   const [publisher, setPublisher] = useState("");
   const [year, setYear] = useState("");
+  const [issueNo, setIssueNo] = useState("");
   const [keyIssueOnly, setKeyIssueOnly] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const router = useRouter();
@@ -19,15 +20,24 @@ export default function CatalogPage() {
   const debouncedQuery = useDebounce(query, 400);
   const debouncedPublisher = useDebounce(publisher, 400);
   const debouncedYear = useDebounce(year, 400);
+  const debouncedIssueNo = useDebounce(issueNo, 400);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const hasSearch = !!(debouncedQuery || debouncedPublisher || debouncedYear || keyIssueOnly);
+  const hasSearch = !!(
+    debouncedQuery ||
+    debouncedPublisher ||
+    debouncedYear ||
+    debouncedIssueNo ||
+    keyIssueOnly
+  );
 
   const searchParams = {
     ...(debouncedQuery ? { q: debouncedQuery } : {}),
     ...(debouncedPublisher ? { publisher: debouncedPublisher } : {}),
     ...(debouncedYear ? { year: debouncedYear } : {}),
+    ...(debouncedIssueNo ? { issue_number: debouncedIssueNo } : {}),
+
     key_issue_only: keyIssueOnly,
   };
 
@@ -51,7 +61,7 @@ export default function CatalogPage() {
         fetchNextPage();
       }
     },
-    [hasNextPage, isFetchingNextPage, fetchNextPage]
+    [hasNextPage, isFetchingNextPage, fetchNextPage],
   );
 
   useEffect(() => {
@@ -131,6 +141,13 @@ export default function CatalogPage() {
               placeholder="Year"
               className="w-28 px-3 py-2 rounded-xl bg-[#111111B2] border border-[#FFFFFF33] text-sm font-sf-pro text-[#F1F1F1] placeholder:text-zinc-600 focus:outline-none focus:border-[#FFFFFF55] transition-colors"
             />
+            <input
+              type="text"
+              value={issueNo}
+              onChange={(e) => setIssueNo(e.target.value)}
+              placeholder="Issue No"
+              className="w-28 px-3 py-2 rounded-xl bg-[#111111B2] border border-[#FFFFFF33] text-sm font-sf-pro text-[#F1F1F1] placeholder:text-zinc-600 focus:outline-none focus:border-[#FFFFFF55] transition-colors"
+            />
 
             {/* Key issue toggle */}
             <button
@@ -205,7 +222,10 @@ export default function CatalogPage() {
             ))}
 
             {/* Infinite scroll sentinel */}
-            <div ref={sentinelRef} className="py-4 flex items-center justify-center">
+            <div
+              ref={sentinelRef}
+              className="py-4 flex items-center justify-center"
+            >
               {isFetchingNextPage && (
                 <Loader2 size={20} className="animate-spin text-zinc-600" />
               )}

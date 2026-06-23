@@ -33,7 +33,7 @@ export default function CatalogCard({ comic }: Props) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 px-4 py-3 min-w-0">
+        <div className="flex-1 px-4 py-3 space-y-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1.5">
             <div className="flex items-center gap-2 flex-wrap min-w-0">
               <span className="text-sm font-michroma text-[#F1F1F1] truncate">
@@ -47,6 +47,7 @@ export default function CatalogCard({ comic }: Props) {
                   Key Issue
                 </span>
               )}
+
               {comic.is_variant && (
                 <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-zinc-800 text-zinc-400 ring-1 ring-zinc-700">
                   Variant
@@ -58,6 +59,11 @@ export default function CatalogCard({ comic }: Props) {
               className="text-zinc-700 group-hover:text-zinc-400 transition-colors shrink-0 mt-0.5"
             />
           </div>
+          {comic.cover_artist && (
+            <span className="font-sf-pro text-sm text-primary">
+              <span className="text-[#888888]">Cover Artist:</span> {comic.cover_artist}
+            </span>
+          )}
 
           <div className="flex items-center gap-4 flex-wrap">
             <span className="text-xs text-[#888888] font-sf-pro">

@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useUsers } from "@/hooks/useUsers";
+import { useUsers, useDeleteUser, userKeys } from "@/hooks/useUsers";
 import { useQueryClient } from "@tanstack/react-query";
-import { userKeys } from "@/hooks/useUsers";
 
-import { RefreshCw, Users, Loader2 } from "lucide-react";
+import { RefreshCw, Users, Loader2, Trash2 } from "lucide-react";
 import { UserRole } from "@/services/userService";
 import UserFilter, { RoleFilter } from "./_components/user-filter";
 import UserStats from "./_components/user-stats";
@@ -17,14 +16,18 @@ export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [search, setSearch] = useState("");
   const [offset, setOffset] = useState(0);
+  const [showDeleted, setShowDeleted] = useState(false);
   const queryClient = useQueryClient();
 
-  const params =
-    roleFilter === "all"
-      ? { limit: LIMIT, offset }
-      : { limit: LIMIT, offset, role: roleFilter as UserRole };
+  const params = {
+    limit: LIMIT,
+    offset,
+    ...(roleFilter !== "all" ? { role: roleFilter as UserRole } : {}),
+    show_deleted: showDeleted,
+  };
 
   const { data, isLoading, isError, isFetching, refetch } = useUsers(params);
+  const { mutate: deleteUser, isPending: isDeleting, variables: deletingUserId } = useDeleteUser();
 
   const allUsers = data?.users ?? [];
   const total = data?.total ?? 0;
@@ -45,6 +48,11 @@ export default function UsersPage() {
 
   const handleRoleChange = (v: RoleFilter) => {
     setRoleFilter(v);
+    setOffset(0);
+  };
+
+  const handleToggleShowDeleted = () => {
+    setShowDeleted((prev) => !prev);
     setOffset(0);
   };
 
@@ -87,6 +95,38 @@ export default function UsersPage() {
             search={search}
             onSearchChange={setSearch}
           />
+          <button
+            type="button"
+            role="switch"
+            aria-checked={showDeleted}
+            onClick={handleToggleShowDeleted}
+            className="flex items-center gap-2.5 group ml-[-8%] xl:ml-[-30%] 2xl:ml-[-40%]"
+          >
+            <Trash2
+              size={14}
+              className={showDeleted ? "text-red-400" : "text-zinc-500"}
+            />
+            <span
+              className={`text-[14px] font-michroma transition-colors ${
+                showDeleted
+                  ? "text-red-400"
+                  : "text-zinc-400 group-hover:text-white"
+              }`}
+            >
+              Show Deleted
+            </span>
+            <span
+              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 ${
+                showDeleted ? "bg-red-500" : "bg-zinc-700"
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transform transition-transform duration-200 ${
+                  showDeleted ? "translate-x-5" : "translate-x-0.5"
+                }`}
+              />
+            </span>
+          </button>
           <div className="flex items-center gap-2">
             {search && (
               <span className="text-xs text-zinc-500">
@@ -123,7 +163,9 @@ export default function UsersPage() {
         ) : filteredUsers.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <Users size={32} className="text-zinc-700" />
-            <p className="text-sm text-zinc-500">No users found.</p>
+            <p className="text-sm text-zinc-500">
+              {showDeleted ? "No deleted users found." : "No users found."}
+            </p>
             {search && (
               <button
                 onClick={() => setSearch("")}
@@ -134,7 +176,11 @@ export default function UsersPage() {
             )}
           </div>
         ) : (
-          <UserTable users={filteredUsers} />
+          <UserTable
+            users={filteredUsers}
+            onDelete={(id) => deleteUser(id)}
+            deletingId={isDeleting ? (deletingUserId ?? null) : null}
+          />
         )}
 
         {/* Pagination */}
