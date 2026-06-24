@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useCatalogComic } from "@/hooks/useCatalog";
+import { useCatalogComic, useRecalculatePricing } from "@/hooks/useCatalog";
 import { useComicValueData } from "@/hooks/use-comic-detail";
 import {
   ArrowLeft,
@@ -13,6 +13,7 @@ import {
   DollarSign,
   Tag,
   Pencil,
+  RefreshCw,
 } from "lucide-react";
 import ComicFormModal from "../_components/comic-form-modal";
 import { EstimatedConditionTab } from "../_components/estimated-condition-tab";
@@ -60,6 +61,7 @@ export default function CatalogDetailPage() {
 
   const { data, isLoading, isError, error } = useCatalogComic(id);
   const valueData = useComicValueData(data);
+  const recalculate = useRecalculatePricing(id);
 
   if (isLoading) {
     return (
@@ -136,13 +138,25 @@ export default function CatalogDetailPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => setEditOpen(true)}
-          className="flex items-center gap-2 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-xs font-michroma text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors shrink-0"
-        >
-          <Pencil size={13} />
-          Edit
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          {hasMarketPrices && hasGradePrices && (
+            <button
+              onClick={() => recalculate.mutate()}
+              disabled={recalculate.isPending}
+              className="flex items-center gap-2 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-xs font-michroma text-zinc-400 hover:text-[#C3F001] hover:border-[#C3F001]/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RefreshCw size={13} className={recalculate.isPending ? "animate-spin" : ""} />
+              Recalculate
+            </button>
+          )}
+          <button
+            onClick={() => setEditOpen(true)}
+            className="flex items-center gap-2 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-xs font-michroma text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors"
+          >
+            <Pencil size={13} />
+            Edit
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
@@ -251,6 +265,54 @@ export default function CatalogDetailPage() {
 
         {/* Right column */}
         <div className="space-y-4">
+          {/* Market prices */}
+          {hasMarketPrices && (
+            <div className="rounded-xl bg-[#111111B2] border border-[#FFFFFF33] p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <DollarSign size={13} className="text-[#C3F001]" />
+                <p className="text-xs text-[#F1F1F1] font-michroma uppercase tracking-wider font-medium">
+                  Market Prices
+                </p>
+              </div>
+              <PriceRow label="Loose" value={data.market_price_loose} />
+              <PriceRow label="Complete" value={data.market_price_complete} />
+              <PriceRow label="New / Sealed" value={data.market_price_new} />
+              <PriceRow label="Graded" value={data.market_price_graded} />
+              {data.price_last_updated && (
+                <p className="text-[10px] text-zinc-700 font-sf-pro mt-2.5">
+                  Updated{" "}
+                  {new Date(data.price_last_updated).toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    },
+                  )}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Grade prices */}
+          {hasGradePrices && (
+            <div className="rounded-xl bg-[#111111B2] border border-[#FFFFFF33] p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Tag size={13} className="text-zinc-400" />
+                <p className="text-xs text-[#F1F1F1] font-michroma uppercase tracking-wider font-medium">
+                  Prices by Grade
+                </p>
+              </div>
+              <PriceRow label="4.0 (VG)" value={data.price_grade_40} />
+              <PriceRow label="6.0 (FN)" value={data.price_grade_60} />
+              <PriceRow label="8.0 (VF)" value={data.price_grade_80} />
+              <PriceRow label="9.2 (NM-)" value={data.price_grade_92} />
+              <PriceRow label="9.4 (NM)" value={data.price_grade_94} />
+              <PriceRow label="9.8 (NM/MT)" value={data.price_grade_98} />
+              <PriceRow label="10.0 (GM)" value={data.price_grade_100} />
+            </div>
+          )}
+
           {/* Identifiers */}
           <div className="rounded-xl bg-[#111111B2] border border-[#FFFFFF33] p-4">
             <p className="text-xs text-[#F1F1F1] font-michroma uppercase tracking-wider font-medium mb-3">

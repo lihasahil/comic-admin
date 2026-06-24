@@ -77,3 +77,17 @@ export function useUpdateCatalogComic(id: number | string, onSuccess?: () => voi
     },
   });
 }
+
+export function useRecalculatePricing(id: number | string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => catalogService.recalculatePricing(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: catalogKeys.detail(id) });
+      toast.success("Pricing recalculated successfully.");
+    },
+    onError: () => {
+      toast.error("Failed to recalculate pricing. Please try again.");
+    },
+  });
+}

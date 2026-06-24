@@ -228,4 +228,8 @@ export const catalogService = {
     );
     return response.data;
   },
+
+  recalculatePricing: async (id: number | string): Promise<void> => {
+    await apiClient.post(`/admin/catalog/comics/${id}/recalculate-pricing`);
+  },
 };
