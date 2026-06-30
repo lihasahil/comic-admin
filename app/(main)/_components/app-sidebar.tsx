@@ -11,6 +11,7 @@ import {
   Scan,
   CheckCircle,
   BookOpen,
+  ScanSearch,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,7 @@ const navItems = [
   { href: "/scans", label: "Scan", icon: Scan },
   { href: "/submissions", label: "Defect Submissions", icon: Lightbulb },
   { href: "/catalog", label: "Comic Catalog", icon: BookOpen },
+  { href: "/scan-corrections", label: "Scan Corrections", icon: ScanSearch },
 ];
 
 export function AppSidebar() {
