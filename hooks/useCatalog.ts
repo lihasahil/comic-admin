@@ -1,4 +1,9 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   catalogService,
   CatalogSearchParams,
@@ -6,6 +11,7 @@ import {
   ComicUpdatePayload,
 } from "@/services/catalogService";
 import { toast } from "sonner";
+import { useEffect, useRef, useState } from "react";
 
 const LIMIT = 20;
 
@@ -18,9 +24,57 @@ export const catalogKeys = {
   detail: (id: number | string) => [...catalogKeys.details(), id] as const,
 };
 
+export function useRefreshPricing(id: number | string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => catalogService.refreshPricing(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: catalogKeys.detail(id) });
+    },
+  });
+}
+
+export function useCatalogComicWithPricingRefresh(id: number | string) {
+  const triggeredRef = useRef<string | number | null>(null);
+  const [refreshDone, setRefreshDone] = useState(false);
+  const [isRefreshingPricing, setIsRefreshingPricing] = useState(true);
+  const [pricingRefreshFailed, setPricingRefreshFailed] = useState(false);
+
+  useEffect(() => {
+    if (!id || triggeredRef.current === id) return;
+    triggeredRef.current = id;
+
+    setRefreshDone(false);
+    setIsRefreshingPricing(true);
+    setPricingRefreshFailed(false);
+
+    catalogService
+      .refreshPricing(id)
+      .catch(() => setPricingRefreshFailed(true))
+      .finally(() => {
+        setIsRefreshingPricing(false);
+        setRefreshDone(true);
+      });
+  }, [id]);
+
+  const comicQuery = useQuery({
+    queryKey: catalogKeys.detail(id),
+    queryFn: () => catalogService.getComic(id),
+    staleTime: 120_000,
+    enabled: !!id && refreshDone, // only fetch once refresh has settled
+  });
+
+  return {
+    ...comicQuery,
+    isLoading: isRefreshingPricing || (refreshDone && comicQuery.isLoading),
+    isRefreshingPricing,
+    pricingRefreshFailed,
+  };
+}
+
 export function useCatalogSearch(
   params: Omit<CatalogSearchParams, "offset" | "limit">,
-  enabled = true
+  enabled = true,
 ) {
   return useInfiniteQuery({
     queryKey: catalogKeys.search(params),
@@ -61,7 +115,10 @@ export function useCreateCatalogComic(onSuccess?: (comicId: number) => void) {
   });
 }
 
-export function useUpdateCatalogComic(id: number | string, onSuccess?: () => void) {
+export function useUpdateCatalogComic(
+  id: number | string,
+  onSuccess?: () => void,
+) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: ComicUpdatePayload) =>

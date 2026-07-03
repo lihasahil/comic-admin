@@ -65,6 +65,30 @@ export interface CatalogDetail extends CatalogListItem {
   updated_at: string;
 }
 
+// Refresh Pricing
+
+export interface RefreshPricingResponse {
+  success: boolean;
+  comic_id: number;
+  catalog_comic_id: number;
+  matched_product: {
+    pricecharting_id: string;
+    product_name: string;
+    release_date: string;
+  } | null;
+  prices: {
+    loose: number | null;
+    grade_4_0: number | null;
+    grade_6_0: number | null;
+    grade_8_0: number | null;
+    grade_9_2: number | null;
+    grade_9_4: number | null;
+    grade_9_8: number | null;
+    grade_10_0: number | null;
+  } | null;
+  price_last_updated: string | null;
+}
+
 // ─── Pricing Snapshot ────────────────────────────────────────────────────────
 
 export interface PricingSellRange {
@@ -231,5 +255,14 @@ export const catalogService = {
 
   recalculatePricing: async (id: number | string): Promise<void> => {
     await apiClient.post(`/admin/catalog/comics/${id}/recalculate-pricing`);
+  },
+
+  refreshPricing: async (
+    id: number | string,
+  ): Promise<RefreshPricingResponse> => {
+    const response = await apiClient.post<RefreshPricingResponse>(
+      `/admin/catalog/comics/${id}/refresh-pricing`,
+    );
+    return response.data;
   },
 };

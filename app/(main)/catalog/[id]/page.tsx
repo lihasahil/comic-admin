@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useCatalogComic, useRecalculatePricing } from "@/hooks/useCatalog";
+import {
+  useCatalogComic,
+  useCatalogComicWithPricingRefresh,
+  useRecalculatePricing,
+} from "@/hooks/useCatalog";
 import { useComicValueData } from "@/hooks/use-comic-detail";
 import {
   ArrowLeft,
@@ -59,9 +63,18 @@ export default function CatalogDetailPage() {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
 
-  const { data, isLoading, isError, error } = useCatalogComic(id);
+  const { data, isLoading, isError, error, isRefreshingPricing } =
+    useCatalogComicWithPricingRefresh(id);
   const valueData = useComicValueData(data);
   const recalculate = useRecalculatePricing(id);
+
+  {
+    isRefreshingPricing && (
+      <span className="text-[10px] text-zinc-600 font-sf-pro">
+        Refreshing prices…
+      </span>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -145,7 +158,10 @@ export default function CatalogDetailPage() {
               disabled={recalculate.isPending}
               className="flex items-center gap-2 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-xs font-michroma text-zinc-400 hover:text-[#C3F001] hover:border-[#C3F001]/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <RefreshCw size={13} className={recalculate.isPending ? "animate-spin" : ""} />
+              <RefreshCw
+                size={13}
+                className={recalculate.isPending ? "animate-spin" : ""}
+              />
               Recalculate
             </button>
           )}
