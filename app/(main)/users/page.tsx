@@ -9,6 +9,7 @@ import { UserRole } from "@/services/userService";
 import UserFilter, { RoleFilter } from "./_components/user-filter";
 import UserStats from "./_components/user-stats";
 import UserTable from "./_components/user-table";
+import { CreateAdminModal } from "./_components/create-admin-modal";
 
 const LIMIT = 50;
 
@@ -17,6 +18,7 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const [offset, setOffset] = useState(0);
   const [showDeleted, setShowDeleted] = useState(false);
+  const [isCreateAdminOpen, setIsCreateAdminOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const params = {
@@ -27,14 +29,17 @@ export default function UsersPage() {
   };
 
   const { data, isLoading, isError, isFetching, refetch } = useUsers(params);
-  const { mutate: deleteUser, isPending: isDeleting, variables: deletingUserId } = useDeleteUser();
+  const {
+    mutate: deleteUser,
+    isPending: isDeleting,
+    variables: deletingUserId,
+  } = useDeleteUser();
 
   const allUsers = data?.users ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.ceil(total / LIMIT);
   const currentPage = Math.floor(offset / LIMIT) + 1;
 
-  // Client-side search filter
   const filteredUsers = useMemo(() => {
     if (!search.trim()) return allUsers;
     const q = search.toLowerCase();
@@ -60,6 +65,8 @@ export default function UsersPage() {
     queryClient.invalidateQueries({ queryKey: userKeys.lists() });
   };
 
+  const handleAdminCreated = () => {};
+
   return (
     <div className="min-h-screen text-white">
       <div className="space-y-6">
@@ -73,15 +80,26 @@ export default function UsersPage() {
               Manage all registered users
             </p>
           </div>
-
-          <button
-            onClick={handleRefresh}
-            disabled={isFetching}
-            className="flex items-center justify-center font-michroma w-full md:w-xs bg-[#C3F001] text-[#171717] gap-2 rounded-lg px-5 py-2.5 text-[14px] transition-opacity hover:opacity-90 active:opacity-80"
-          >
-            <RefreshCw size={14} className={isFetching ? "animate-spin" : ""} />
-            Refresh
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={handleRefresh}
+              disabled={isFetching}
+              className="flex items-center justify-center font-michroma w-full md:w-xs bg-[#C3F001] text-[#171717] gap-2 rounded-lg px-5 py-2.5 text-[14px] transition-opacity hover:opacity-90 active:opacity-80"
+            >
+              <RefreshCw
+                size={14}
+                className={isFetching ? "animate-spin" : ""}
+              />
+              Refresh
+            </button>
+            {/* 3. Open modal on click */}
+            <button
+              onClick={() => setIsCreateAdminOpen(true)}
+              className="flex items-center justify-center font-michroma w-full md:w-xs bg-[#C3F001] text-[#171717] gap-2 rounded-lg px-5 py-2.5 text-[14px] transition-opacity hover:opacity-90 active:opacity-80"
+            >
+              Create Admin Account
+            </button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -208,6 +226,12 @@ export default function UsersPage() {
           </div>
         )}
       </div>
+
+      <CreateAdminModal
+        open={isCreateAdminOpen}
+        onClose={() => setIsCreateAdminOpen(false)}
+        onSuccess={handleAdminCreated}
+      />
     </div>
   );
 }
