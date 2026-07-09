@@ -186,7 +186,7 @@ export function EstimatedConditionTab({
 
   const mainTabs: { id: MainTab; label: string }[] = [
     { id: "raw", label: "Raw" },
-    { id: "cgc", label: "CGC Graded" },
+    { id: "cgc", label: "Graded" },
     { id: "sell", label: "Sell / Trade" },
   ];
 
