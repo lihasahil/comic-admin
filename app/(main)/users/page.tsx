@@ -10,6 +10,7 @@ import UserFilter, { RoleFilter } from "./_components/user-filter";
 import UserStats from "./_components/user-stats";
 import UserTable from "./_components/user-table";
 import { CreateAdminModal } from "./_components/create-admin-modal";
+import { SendEmailModal } from "../_components/send-email-modal";
 
 const LIMIT = 50;
 
@@ -20,6 +21,7 @@ export default function UsersPage() {
   const [showDeleted, setShowDeleted] = useState(false);
   const [isCreateAdminOpen, setIsCreateAdminOpen] = useState(false);
   const queryClient = useQueryClient();
+  const [isSendEmailOpen, setIsSendEmailOpen] = useState(false);
 
   const params = {
     limit: LIMIT,
@@ -98,6 +100,12 @@ export default function UsersPage() {
               className="flex items-center justify-center font-michroma w-full md:w-xs bg-[#C3F001] text-[#171717] gap-2 rounded-lg px-5 py-2.5 text-[14px] transition-opacity hover:opacity-90 active:opacity-80"
             >
               Create Admin Account
+            </button>
+            <button
+              onClick={() => setIsSendEmailOpen(true)}
+              className="flex items-center justify-center font-michroma w-full md:w-xs bg-[#C3F001] text-[#171717] gap-2 rounded-lg px-5 py-2.5 text-[14px] transition-opacity hover:opacity-90 active:opacity-80"
+            >
+              Send Beta Welcome Email
             </button>
           </div>
         </div>
@@ -231,6 +239,11 @@ export default function UsersPage() {
         open={isCreateAdminOpen}
         onClose={() => setIsCreateAdminOpen(false)}
         onSuccess={handleAdminCreated}
+      />
+
+      <SendEmailModal
+        open={isSendEmailOpen}
+        onClose={() => setIsSendEmailOpen(false)}
       />
     </div>
   );
