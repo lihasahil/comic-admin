@@ -308,7 +308,7 @@ export function EstimatedConditionTab({
 
               {mainTab === "cgc" && (
                 <th className="text-center py-3 px-3 text-[12px] font-michroma font-medium text-[#F1F1F1] tracking-wider">
-                  CGC Value
+                  Value
                 </th>
               )}
 
