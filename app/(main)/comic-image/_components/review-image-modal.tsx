@@ -38,6 +38,8 @@ export function ReviewImageModal({
 
   const needsNotes = decision === "rejected";
   const canSubmit = !needsNotes || notes.trim().length > 0;
+  const displayName =
+    image.uploaded_by?.full_name || image.uploaded_by?.username || "unknown";
 
   const handleSubmit = () => {
     if (!canSubmit) return;
@@ -92,13 +94,21 @@ export function ReviewImageModal({
             </p>
             <p className="text-xs text-zinc-600 font-sf-pro">
               @{image.uploaded_by?.username ?? "unknown"}
+              {image.uploaded_by?.full_name ? ` · ${displayName}` : ""}
             </p>
-            {image.qdrant_eligible && (
-              <span className="flex items-center gap-1 text-[10px] font-michroma text-[#C3F001]">
-                <Sparkles size={10} />
-                Visual search eligible
-              </span>
-            )}
+            <div className="flex items-center gap-2 flex-wrap">
+              {image.image_type && (
+                <span className="text-[10px] font-sf-pro uppercase tracking-wide text-zinc-500 border border-zinc-800 rounded px-1.5 py-0.5">
+                  {image.image_type}
+                </span>
+              )}
+              {image.qdrant_eligible && (
+                <span className="flex items-center gap-1 text-[10px] font-michroma text-[#C3F001]">
+                  <Sparkles size={10} />
+                  Visual search eligible
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

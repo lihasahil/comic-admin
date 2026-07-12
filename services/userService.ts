@@ -1,6 +1,6 @@
 import apiClient from "@/lib/axios";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// Types
 
 export type UserRole = "user" | "admin";
 
@@ -48,7 +48,7 @@ export interface DeleteUserResponse {
   deleted_by_admin: number;
 }
 
-// ─── Founder Badge ────────────────────────────────────────────────────────────
+// Founder Badg
 
 export interface AssignFounderBadgeResponse {
   success: boolean;
@@ -58,7 +58,6 @@ export interface AssignFounderBadgeResponse {
 
 /**
  * Derive the badge number from the image filename.
- * e.g. "https://.../founder-badges/1.png" -> 1
  * Returns null if the user has no founder badge.
  */
 export function getFounderBadgeNumber(
@@ -70,7 +69,7 @@ export function getFounderBadgeNumber(
   return match ? parseInt(match[1], 10) : null;
 }
 
-// ─── Service ──────────────────────────────────────────────────────────────────
+// Service
 
 export const userService = {
   /**

@@ -10,7 +10,7 @@ import {
   ReviewImagePayload,
 } from "@/services/comic-image.service";
 
-// ─── Query Keys ───────────────────────────────────────────────────────────────
+// Query Keys
 
 export const comicImageKeys = {
   all: ["comic-images"] as const,
@@ -19,7 +19,7 @@ export const comicImageKeys = {
     [...comicImageKeys.lists(), params] as const,
 };
 
-// ─── Hooks ────────────────────────────────────────────────────────────────────
+// Hooks
 
 /**
  * Fetch paginated pending (or other status) comic cover images.

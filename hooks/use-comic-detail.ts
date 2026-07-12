@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { CatalogDetail } from "@/services/catalogService";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// Types 
 
 export type ValueSource = "real" | "est" | "extrap" | "highvar";
 
@@ -28,13 +28,13 @@ export interface ComicValueData {
   updatedAt: string;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// Helpers
 
 function toRawSource(s: string): ValueSource {
   return s.toLowerCase() === "real" ? "real" : "est";
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+// Hook 
 
 export function useComicValueData(comic: CatalogDetail | undefined): ComicValueData | undefined {
   return useMemo(() => {

@@ -1,6 +1,6 @@
 import apiClient from "@/lib/axios";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// Types
 
 export type SubmissionStatus = "pending" | "approved" | "rejected" | "reviewed";
 export type DefectSeverity = "negligible" | "minor" | "moderate" | "major";
@@ -97,7 +97,7 @@ export interface SubmissionListParams {
   status?: SubmissionStatus;
 }
 
-// ─── Service ──────────────────────────────────────────────────────────────────
+// Service
 
 export const submissionService = {
   /**

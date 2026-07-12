@@ -1,7 +1,7 @@
 "use client";
 
 import { PendingComicImage } from "@/services/comic-image.service";
-import { Sparkles, User, ImageOff, Check, X } from "lucide-react";
+import { Sparkles, User, ImageOff, Check, X, Clock } from "lucide-react";
 
 interface Props {
   images: PendingComicImage[];
@@ -9,6 +9,12 @@ interface Props {
   onQuickApprove: (image: PendingComicImage) => void;
   processingId: string | null;
 }
+
+const STATUS_STYLES: Record<string, string> = {
+  pending: "bg-black/70 text-zinc-300",
+  approved: "bg-[#C3F001]/90 text-[#171717]",
+  rejected: "bg-red-600/90 text-white",
+};
 
 export default function ComicImageGrid({
   images,
@@ -20,6 +26,7 @@ export default function ComicImageGrid({
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {images.map((img) => {
         const isProcessing = processingId === img.image_id;
+        const isPending = img.approval_status === "pending";
         return (
           <div
             key={img.image_id}
@@ -39,6 +46,18 @@ export default function ComicImageGrid({
                   <ImageOff size={24} />
                 </div>
               )}
+
+              {/* Status badge (only meaningful outside the pending tab, but harmless everywhere) */}
+              {!isPending && (
+                <span
+                  className={`absolute top-2 left-2 rounded-full px-2 py-1 text-[10px] font-michroma capitalize ${
+                    STATUS_STYLES[img.approval_status] ?? STATUS_STYLES.pending
+                  }`}
+                >
+                  {img.approval_status}
+                </span>
+              )}
+
               {img.qdrant_eligible && (
                 <span
                   title="Approving will update visual search"
@@ -61,6 +80,14 @@ export default function ComicImageGrid({
               <p className="flex items-center gap-1.5 text-xs text-zinc-600 font-sf-pro">
                 <User size={11} />@{img.uploaded_by?.username ?? "unknown"}
               </p>
+
+              {/* Reviewed date, only shown once a decision has been made */}
+              {img.reviewed_at && (
+                <p className="flex items-center gap-1.5 text-[11px] text-zinc-600 font-sf-pro">
+                  <Clock size={10} />
+                  {new Date(img.reviewed_at).toLocaleDateString()}
+                </p>
+              )}
 
               <div className="mt-auto flex gap-2 pt-2">
                 <button

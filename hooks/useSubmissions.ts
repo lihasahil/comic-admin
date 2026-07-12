@@ -12,7 +12,7 @@ import {
 
 import { toast } from "sonner";
 
-// ─── Query Keys ───────────────────────────────────────────────────────────────
+// Query Keys 
 
 export const submissionKeys = {
   all: ["submissions"] as const,
@@ -29,7 +29,7 @@ export const submissionKeys = {
   preview: (id: string) => [...submissionKeys.all, "preview", id] as const,
 };
 
-// ─── Hooks ────────────────────────────────────────────────────────────────────
+// Hooks
 
 export function useSubmissions(params: SubmissionListParams = {}) {
   return useQuery({

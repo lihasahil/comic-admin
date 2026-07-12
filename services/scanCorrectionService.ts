@@ -1,6 +1,6 @@
 import apiClient from "@/lib/axios";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// Types 
 
 export type ScanCorrectionStatus = "pending" | "approved" | "rejected";
 
@@ -96,7 +96,7 @@ export interface ReviewScanCorrectionResponse {
   };
 }
 
-// ─── Service ──────────────────────────────────────────────────────────────────
+// Service
 
 const BASE = "/admin/scan-corrections";
 

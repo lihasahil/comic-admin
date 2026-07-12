@@ -13,7 +13,7 @@ import {
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 
-// ─── Query Keys ───────────────────────────────────────────────────────────────
+// Query Keys
 
 export const scanCorrectionKeys = {
   all: ["scan-corrections"] as const,

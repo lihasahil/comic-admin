@@ -1,6 +1,6 @@
 import apiClient from "@/lib/axios";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// Types
 
 export interface CatalogListItem {
   id: number;
@@ -89,7 +89,7 @@ export interface RefreshPricingResponse {
   price_last_updated: string | null;
 }
 
-// ─── Pricing Snapshot ────────────────────────────────────────────────────────
+// Pricing Snapshot
 
 export interface PricingSellRange {
   low: number;
@@ -134,7 +134,7 @@ export interface CatalogSearchParams {
   offset?: number;
 }
 
-// ─── Create / Update ─────────────────────────────────────────────────────────
+// Create / Update
 
 export interface ComicCreatePayload {
   series_name: string;
@@ -195,8 +195,7 @@ export interface ComicMutationResponse {
   comic: CatalogDetail;
 }
 
-// ─── Service ──────────────────────────────────────────────────────────────────
-
+// Service
 export const catalogService = {
   search: async (
     params: CatalogSearchParams = {},

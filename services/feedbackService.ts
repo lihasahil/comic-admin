@@ -1,6 +1,6 @@
 import apiClient from "@/lib/axios";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// Types 
 
 export interface FeedbackImage {
   image_id: string;
@@ -52,7 +52,7 @@ export interface FeedbackListParams {
   status?: FeedbackStatus;
 }
 
-// ─── Service ──────────────────────────────────────────────────────────────────
+// Service
 
 export const feedbackService = {
   /**

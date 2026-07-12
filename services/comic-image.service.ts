@@ -4,25 +4,34 @@ import apiClient from "@/lib/axios";
 
 export type ReviewStatus = "pending" | "approved" | "rejected";
 
+export type ImageType = "front" | "back" | "spine" | string;
+
 export interface UploadedBy {
-  user_id?: number;
+  user_id: number;
   username: string;
+  full_name?: string | null;
 }
 
 export interface PendingComicImage {
   image_id: string;
-  image_url: string;
+  comic_id: string;
   comic_title: string;
-  uploaded_by: UploadedBy;
+  comic_gcd_issue_id?: number | null;
+  image_url: string;
+  image_type: ImageType;
+  approval_status: ReviewStatus;
+  qdrant_indexed: boolean;
   qdrant_eligible: boolean;
-  status?: ReviewStatus;
-  created_at?: string;
+  uploaded_by: UploadedBy;
+  created_at: string;
+  reviewed_at?: string | null;
 }
 
 export interface PendingImagesResponse {
+  success: boolean;
   total: number;
-  offset: number;
   limit: number;
+  offset: number;
   images: PendingComicImage[];
 }
 
@@ -34,8 +43,8 @@ export interface PendingImagesParams {
 
 export interface ReviewImagePayload {
   status: "approved" | "rejected";
-  update_cover: boolean;
   notes?: string;
+  update_cover: boolean;
 }
 
 export interface ReviewImageResponse {

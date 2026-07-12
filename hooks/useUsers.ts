@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { userService, UserListParams } from "@/services/userService";
 
-// ─── Query Keys ───────────────────────────────────────────────────────────────
+// Query Keys
 
 export const userKeys = {
   all: ["users"] as const,
@@ -14,7 +14,7 @@ export const userKeys = {
   list: (params: UserListParams) => [...userKeys.lists(), params] as const,
 };
 
-// ─── Hooks ────────────────────────────────────────────────────────────────────
+// Hooks
 
 /**
  * Fetch paginated users list.

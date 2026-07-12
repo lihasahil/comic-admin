@@ -12,7 +12,7 @@ import {
   FeedbackStatus,
 } from "@/services/feedbackService";
 
-// ─── Query Keys ───────────────────────────────────────────────────────────────
+// Query Keys
 
 export const feedbackKeys = {
   all: ["feedbacks"] as const,
@@ -21,7 +21,7 @@ export const feedbackKeys = {
     [...feedbackKeys.lists(), params] as const,
 };
 
-// ─── Hooks ────────────────────────────────────────────────────────────────────
+// Hooks
 
 /**
  * Fetch paginated feedback list.
