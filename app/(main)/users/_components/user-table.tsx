@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { User } from "@/services/userService";
+import { User, getFounderBadgeNumber } from "@/services/userService";
 import UserRoleBadge from "./user-role-badge";
 import {
   Coins,
@@ -11,12 +11,14 @@ import {
   Trash2,
   Loader2,
   TriangleAlert,
+  Award,
 } from "lucide-react";
 
 interface Props {
   users: User[];
   onDelete: (userId: number) => void;
   deletingId: number | null;
+  onManageFounderBadge: (user: User) => void;
 }
 
 function formatDate(iso: string) {
@@ -56,7 +58,12 @@ interface DeleteModalProps {
   onCancel: () => void;
 }
 
-function DeleteConfirmModal({ user, isDeleting, onConfirm, onCancel }: DeleteModalProps) {
+function DeleteConfirmModal({
+  user,
+  isDeleting,
+  onConfirm,
+  onCancel,
+}: DeleteModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -76,7 +83,9 @@ function DeleteConfirmModal({ user, isDeleting, onConfirm, onCancel }: DeleteMod
               Delete user?
             </h2>
             <p className="mt-1.5 text-sm font-sf-pro text-zinc-400">
-              <span className="text-zinc-200 font-medium">{user.full_name}</span>{" "}
+              <span className="text-zinc-200 font-medium">
+                {user.full_name}
+              </span>{" "}
               ({user.email}) will be permanently deleted. This action cannot be
               undone.
             </p>
@@ -111,7 +120,12 @@ function DeleteConfirmModal({ user, isDeleting, onConfirm, onCancel }: DeleteMod
   );
 }
 
-export default function UserTable({ users, onDelete, deletingId }: Props) {
+export default function UserTable({
+  users,
+  onDelete,
+  deletingId,
+  onManageFounderBadge,
+}: Props) {
   const [confirmUser, setConfirmUser] = useState<User | null>(null);
 
   const handleConfirm = () => {
@@ -157,186 +171,243 @@ export default function UserTable({ users, onDelete, deletingId }: Props) {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/60">
-              {users.map((user, index) => (
-                <tr
-                  key={user.user_id}
-                  className={`transition-colors hover:bg-zinc-900/40 ${
-                    index % 2 === 0 ? "bg-[#171717]" : "bg-[#0D0D0D]"
-                  } ${!user.is_active ? "opacity-50" : ""}`}
-                >
-                  {/* User cell */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center font-sf-pro gap-3">
-                      <div
-                        className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${avatarColor(user.user_id)}`}
-                      >
-                        {getInitials(user.full_name)}
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-zinc-200 flex items-center gap-1.5">
-                          {user.full_name}
-                          {!user.is_active && (
-                            <span className="text-[10px] text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-full">
-                              deleted
-                            </span>
-                          )}
+              {users.map((user, index) => {
+                const badgeNumber = getFounderBadgeNumber(user);
+                return (
+                  <tr
+                    key={user.user_id}
+                    className={`transition-colors hover:bg-zinc-900/40 ${
+                      index % 2 === 0 ? "bg-[#171717]" : "bg-[#0D0D0D]"
+                    } ${!user.is_active ? "opacity-50" : ""}`}
+                  >
+                    {/* User cell */}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center font-sf-pro gap-3">
+                        <div
+                          className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${avatarColor(user.user_id)}`}
+                        >
+                          {getInitials(user.full_name)}
                         </div>
-                        <div className="text-xs text-zinc-600 mt-0.5">
-                          {user.username ? (
-                            <span className="text-zinc-500">
-                              @{user.username}
-                            </span>
-                          ) : null}
-                          {user.username && " · "}
-                          {user.email}
+                        <div>
+                          <div className="text-sm font-medium text-zinc-200 flex items-center gap-1.5">
+                            {user.full_name}
+                            {badgeNumber != null && (
+                              <Award
+                                size={12}
+                                className="text-[#C3F001]"
+                                fill="currentColor"
+                              />
+                            )}
+                            {!user.is_active && (
+                              <span className="text-[10px] text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-full">
+                                deleted
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-zinc-600 mt-0.5">
+                            {user.username ? (
+                              <span className="text-zinc-500">
+                                @{user.username}
+                              </span>
+                            ) : null}
+                            {user.username && " · "}
+                            {user.email}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
+                    </td>
 
-                  {/* Role */}
-                  <td className="px-4 py-3">
-                    <UserRoleBadge role={user.role} />
-                  </td>
+                    {/* Role */}
+                    <td className="px-4 py-3">
+                      <UserRoleBadge role={user.role} />
+                    </td>
 
-                  {/* Status */}
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col gap-1">
-                      <span
-                        className={`inline-flex items-center font-sf-pro gap-1 text-xs ${
-                          user.onboarding_complete
-                            ? "text-primary"
-                            : "text-[#888888]"
-                        }`}
-                      >
-                        {user.onboarding_complete ? "Onboarded" : "Pending setup"}
-                      </span>
-                    </div>
-                  </td>
+                    {/* Status */}
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-1">
+                        <span
+                          className={`inline-flex items-center font-sf-pro gap-1 text-xs ${
+                            user.onboarding_complete
+                              ? "text-primary"
+                              : "text-[#888888]"
+                          }`}
+                        >
+                          {user.onboarding_complete
+                            ? "Onboarded"
+                            : "Pending setup"}
+                        </span>
+                      </div>
+                    </td>
 
-                  {/* Stats */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3 text-xs text-zinc-500">
-                      {user.coins > 0 && (
-                        <span className="flex items-center font-michroma gap-1 text-amber-400">
-                          <Coins size={11} />
-                          {user.coins}
-                        </span>
-                      )}
-                      {user.scan_count > 0 && (
-                        <span className="flex items-center font-michroma gap-1">
-                          <ScanLine size={11} />
-                          {user.scan_count}
-                        </span>
-                      )}
-                      {user.collection_size > 0 && (
-                        <span className="flex items-center font-michroma gap-1">
-                          <Library size={11} />
-                          {user.collection_size}
-                        </span>
-                      )}
-                      {user.approved_feedback_count > 0 && (
-                        <span className="flex items-center gap-1 font-michroma text-primary">
-                          <MessageSquareCheck size={11} />
-                          {user.approved_feedback_count}
-                        </span>
-                      )}
-                      {user.coins === 0 &&
-                        user.scan_count === 0 &&
-                        user.collection_size === 0 &&
-                        user.approved_feedback_count === 0 && (
-                          <span className="text-zinc-700">—</span>
+                    {/* Stats */}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3 text-xs text-zinc-500">
+                        {user.coins > 0 && (
+                          <span className="flex items-center font-michroma gap-1 text-amber-400">
+                            <Coins size={11} />
+                            {user.coins}
+                          </span>
                         )}
-                    </div>
-                  </td>
+                        {user.scan_count > 0 && (
+                          <span className="flex items-center font-michroma gap-1">
+                            <ScanLine size={11} />
+                            {user.scan_count}
+                          </span>
+                        )}
+                        {user.collection_size > 0 && (
+                          <span className="flex items-center font-michroma gap-1">
+                            <Library size={11} />
+                            {user.collection_size}
+                          </span>
+                        )}
+                        {user.approved_feedback_count > 0 && (
+                          <span className="flex items-center gap-1 font-michroma text-primary">
+                            <MessageSquareCheck size={11} />
+                            {user.approved_feedback_count}
+                          </span>
+                        )}
+                        {user.coins === 0 &&
+                          user.scan_count === 0 &&
+                          user.collection_size === 0 &&
+                          user.approved_feedback_count === 0 && (
+                            <span className="text-zinc-700">—</span>
+                          )}
+                      </div>
+                    </td>
 
-                  {/* Joined */}
-                  <td className="px-4 py-3 text-xs font-sf-pro text-zinc-600">
-                    {formatDate(user.created_at)}
-                  </td>
+                    {/* Joined */}
+                    <td className="px-4 py-3 text-xs font-sf-pro text-zinc-600">
+                      {formatDate(user.created_at)}
+                    </td>
 
-                  {/* Actions */}
-                  <td className="px-4 py-3 text-right">
-                    {deletingId === user.user_id ? (
-                      <Loader2 size={14} className="animate-spin text-zinc-500 ml-auto" />
-                    ) : (
-                      <button
-                        onClick={() => setConfirmUser(user)}
-                        className="text-zinc-600 hover:text-red-400 transition-colors"
-                        title="Delete user"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                    {/* Actions */}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-3">
+                        <button
+                          onClick={() => onManageFounderBadge(user)}
+                          className={`transition-colors ${
+                            badgeNumber != null
+                              ? "text-[#C3F001] hover:opacity-80"
+                              : "text-zinc-600 hover:text-[#C3F001]"
+                          }`}
+                          title="Manage founder badge"
+                        >
+                          <Award
+                            size={14}
+                            fill={badgeNumber != null ? "currentColor" : "none"}
+                          />
+                        </button>
+                        {deletingId === user.user_id ? (
+                          <Loader2
+                            size={14}
+                            className="animate-spin text-zinc-500"
+                          />
+                        ) : (
+                          <button
+                            onClick={() => setConfirmUser(user)}
+                            className="text-zinc-600 hover:text-red-400 transition-colors"
+                            title="Delete user"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
 
         {/* Mobile cards */}
         <div className="sm:hidden divide-y font-sf-pro divide-zinc-800/60">
-          {users.map((user) => (
-            <div
-              key={user.user_id}
-              className={`p-4 ${!user.is_active ? "opacity-50" : ""}`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`h-9 w-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${avatarColor(user.user_id)}`}
-                  >
-                    {getInitials(user.full_name)}
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-zinc-200">
-                      {user.full_name}
+          {users.map((user) => {
+            const badgeNumber = getFounderBadgeNumber(user);
+            return (
+              <div
+                key={user.user_id}
+                className={`p-4 ${!user.is_active ? "opacity-50" : ""}`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`h-9 w-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${avatarColor(user.user_id)}`}
+                    >
+                      {getInitials(user.full_name)}
                     </div>
-                    <div className="text-xs text-zinc-600">
-                      {user.username ? `@${user.username} · ` : ""}
-                      {user.email}
+                    <div>
+                      <div className="text-sm font-medium text-zinc-200 flex items-center gap-1.5">
+                        {user.full_name}
+                        {badgeNumber != null && (
+                          <Award
+                            size={11}
+                            className="text-[#C3F001]"
+                            fill="currentColor"
+                          />
+                        )}
+                      </div>
+                      <div className="text-xs text-zinc-600">
+                        {user.username ? `@${user.username} · ` : ""}
+                        {user.email}
+                      </div>
                     </div>
                   </div>
+                  <UserRoleBadge role={user.role} />
                 </div>
-                <UserRoleBadge role={user.role} />
-              </div>
 
-              <div className="mt-3 flex items-center gap-3 flex-wrap">
-                <span
-                  className={`text-xs flex font-sf-pro items-center gap-1 ${
-                    user.onboarding_complete ? "text-primary" : "text-[#888888]"
-                  }`}
-                >
+                <div className="mt-3 flex items-center gap-3 flex-wrap">
                   <span
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      user.onboarding_complete ? "bg-primary" : "bg-[#888888]"
+                    className={`text-xs flex font-sf-pro items-center gap-1 ${
+                      user.onboarding_complete
+                        ? "text-primary"
+                        : "text-[#888888]"
                     }`}
-                  />
-                  {user.onboarding_complete ? "Onboarded" : "Pending setup"}
-                </span>
-                {user.coins > 0 && (
-                  <span className="text-xs flex items-center font-michroma gap-1 text-amber-400">
-                    <Coins size={11} /> {user.coins} coins
-                  </span>
-                )}
-                <span className="text-xs text-zinc-600 font-sf-pro ml-auto">
-                  {formatDate(user.created_at)}
-                </span>
-                {deletingId === user.user_id ? (
-                  <Loader2 size={13} className="animate-spin text-zinc-500" />
-                ) : (
-                  <button
-                    onClick={() => setConfirmUser(user)}
-                    className="text-zinc-600 hover:text-red-400 transition-colors"
-                    title="Delete user"
                   >
-                    <Trash2 size={13} />
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full ${
+                        user.onboarding_complete ? "bg-primary" : "bg-[#888888]"
+                      }`}
+                    />
+                    {user.onboarding_complete ? "Onboarded" : "Pending setup"}
+                  </span>
+                  {user.coins > 0 && (
+                    <span className="text-xs flex items-center font-michroma gap-1 text-amber-400">
+                      <Coins size={11} /> {user.coins} coins
+                    </span>
+                  )}
+                  <span className="text-xs text-zinc-600 font-sf-pro ml-auto">
+                    {formatDate(user.created_at)}
+                  </span>
+                  <button
+                    onClick={() => onManageFounderBadge(user)}
+                    className={`transition-colors ${
+                      badgeNumber != null
+                        ? "text-[#C3F001] hover:opacity-80"
+                        : "text-zinc-600 hover:text-[#C3F001]"
+                    }`}
+                    title="Manage founder badge"
+                  >
+                    <Award
+                      size={13}
+                      fill={badgeNumber != null ? "currentColor" : "none"}
+                    />
                   </button>
-                )}
+                  {deletingId === user.user_id ? (
+                    <Loader2 size={13} className="animate-spin text-zinc-500" />
+                  ) : (
+                    <button
+                      onClick={() => setConfirmUser(user)}
+                      className="text-zinc-600 hover:text-red-400 transition-colors"
+                      title="Delete user"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </>

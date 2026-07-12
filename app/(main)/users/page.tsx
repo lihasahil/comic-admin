@@ -5,12 +5,13 @@ import { useUsers, useDeleteUser, userKeys } from "@/hooks/useUsers";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { RefreshCw, Users, Loader2, Trash2 } from "lucide-react";
-import { UserRole } from "@/services/userService";
+import { User, UserRole } from "@/services/userService";
 import UserFilter, { RoleFilter } from "./_components/user-filter";
 import UserStats from "./_components/user-stats";
 import UserTable from "./_components/user-table";
 import { CreateAdminModal } from "./_components/create-admin-modal";
 import { SendEmailModal } from "../_components/send-email-modal";
+import { AssignFounderBadgeModal } from "./_components/assign-founder-badge-modal";
 
 const LIMIT = 50;
 
@@ -22,6 +23,7 @@ export default function UsersPage() {
   const [isCreateAdminOpen, setIsCreateAdminOpen] = useState(false);
   const queryClient = useQueryClient();
   const [isSendEmailOpen, setIsSendEmailOpen] = useState(false);
+  const [badgeModalUser, setBadgeModalUser] = useState<User | null>(null);
 
   const params = {
     limit: LIMIT,
@@ -206,6 +208,7 @@ export default function UsersPage() {
             users={filteredUsers}
             onDelete={(id) => deleteUser(id)}
             deletingId={isDeleting ? (deletingUserId ?? null) : null}
+            onManageFounderBadge={(user) => setBadgeModalUser(user)}
           />
         )}
 
@@ -244,6 +247,12 @@ export default function UsersPage() {
       <SendEmailModal
         open={isSendEmailOpen}
         onClose={() => setIsSendEmailOpen(false)}
+      />
+
+      <AssignFounderBadgeModal
+        user={badgeModalUser}
+        open={!!badgeModalUser}
+        onClose={() => setBadgeModalUser(null)}
       />
     </div>
   );
