@@ -183,12 +183,13 @@ export default function CatalogDetailPage() {
             <div className="flex gap-5">
               {/* Cover placeholder */}
               <div className="w-28 shrink-0 aspect-2/3 rounded-lg bg-[#1A1A1A] border border-zinc-800 flex items-center justify-center">
-                <div className="flex flex-col items-center gap-2">
-                  <Layers size={20} className="text-zinc-700" />
-                  <span className="text-[9px] text-zinc-700 font-michroma text-center">
-                    {data.publisher_name}
-                  </span>
-                </div>
+                {data.image_url && (
+                  <img
+                    src={data.image_url}
+                    alt="Image"
+                    className="object-contain"
+                  />
+                )}
               </div>
 
               {/* Core info */}

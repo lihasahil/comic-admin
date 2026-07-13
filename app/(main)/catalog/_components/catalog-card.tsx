@@ -19,12 +19,9 @@ export default function CatalogCard({ comic }: Props) {
       <div className="flex items-stretch gap-0">
         {/* Cover placeholder */}
         <div className="relative w-16 shrink-0 bg-[#1A1A1A] flex items-center justify-center">
-          <div className="flex flex-col items-center gap-1 p-2">
-            <Layers size={16} className="text-zinc-700" />
-            <span className="text-[8px] text-zinc-700 font-michroma text-center leading-tight">
-              {comic.publisher_name}
-            </span>
-          </div>
+          {comic.image_url && (
+            <img src={comic.image_url} alt="Image" className="object-contain" />
+          )}
           {comic.key_issue_status && (
             <div className="absolute top-1.5 left-1.5">
               <Star size={10} className="text-[#C3F001] fill-[#C3F001]" />
@@ -61,7 +58,8 @@ export default function CatalogCard({ comic }: Props) {
           </div>
           {comic.cover_artist && (
             <span className="font-sf-pro text-sm text-primary">
-              <span className="text-[#888888]">Cover Artist:</span> {comic.cover_artist}
+              <span className="text-[#888888]">Cover Artist:</span>{" "}
+              {comic.cover_artist}
             </span>
           )}
 
