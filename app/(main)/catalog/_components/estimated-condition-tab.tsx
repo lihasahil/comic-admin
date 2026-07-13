@@ -288,6 +288,21 @@ export function EstimatedConditionTab({
         {banner.text}
       </div>
 
+      <div className="flex items-center justify-center gap-1">
+        <Image
+          src="/PC.png"
+          alt="PC"
+          height={30}
+          width={30}
+          className=" mt-1"
+        />
+        <p className="font-sf-pro">
+          Pricing data provided by{" "}
+          <span className="text-[#1e83d5] font-bold">Price</span>
+          <span className="text-[#51b81b] font-bold">Charting</span>
+        </p>
+      </div>
+
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
