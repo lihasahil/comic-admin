@@ -1,12 +1,16 @@
 import nodemailer from "nodemailer";
 
+const useSSL = process.env.SMTP_USE_SSL === "true";
+const useTLS = process.env.SMTP_USE_TLS === "true";
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT) || 587,
-  secure: process.env.SMTP_SECURE === "true",
+  secure: useSSL, // true only for port 465 (implicit SSL)
+  requireTLS: !useSSL && useTLS, // STARTTLS on port 587 (Office365 default)
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: process.env.SMTP_USERNAME,
+    pass: process.env.SMTP_PASSWORD,
   },
 });
 
@@ -17,9 +21,11 @@ export interface SendMailOptions {
 }
 
 export async function sendMail({ to, subject, html }: SendMailOptions) {
+  const fromEmail = process.env.SMTP_FROM_EMAIL || "no-reply@comicsmithai.net";
+  const fromName = process.env.SMTP_FROM_NAME || "ComicSmith AI";
+
   return transporter.sendMail({
-    from:
-      process.env.EMAIL_FROM || '"ComicSmith AI" <no-reply@comicsmithai.net>',
+    from: `"${fromName}" <${fromEmail}>`,
     to,
     subject,
     html,
