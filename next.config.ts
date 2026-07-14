@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "comicimages.s3.eu-north-1.amazonaws.com",
       },
+
+      {
+        protocol: "https",
+        hostname: "comicimages.s3.amazonaws.com",
+        pathname: "/**",
+      },
     ],
   },
 };

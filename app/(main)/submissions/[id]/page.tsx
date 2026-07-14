@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useSubmission, usePreviewBlob } from "@/hooks/useSubmissions";
+import { Defect } from "@/services/submissionService";
 
 import {
   ArrowLeft,
@@ -42,11 +43,19 @@ function imageLabel(key: string) {
   return key.replace(/_/g, " ");
 }
 
+interface SelectedDefect {
+  imageKey: string;
+  defect: Defect;
+}
+
 export default function SubmissionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [showPreview, setShowPreview] = useState(false);
   const [selectedImageKey, setSelectedImageKey] = useState("");
+  const [selectedDefect, setSelectedDefect] = useState<SelectedDefect | null>(
+    null,
+  );
 
   const { data, isLoading, isError } = useSubmission(id);
   const { data: previewUrl, isFetching: previewLoading } = usePreviewBlob(
@@ -79,10 +88,6 @@ export default function SubmissionDetailPage() {
   const imageEntries = Object.entries(data.images);
   const activeKey = selectedImageKey || (imageEntries[0]?.[0] ?? "");
   const activeImage = data.images[activeKey];
-  const totalDefects = imageEntries.reduce(
-    (sum, [, img]) => sum + img.defects.length,
-    0,
-  );
 
   return (
     <div className="min-h-screen text-white">
@@ -165,7 +170,8 @@ export default function SubmissionDetailPage() {
               <div className="rounded-xl bg-[#111111B2] border border-[#FFFFFF33] p-4">
                 <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                   <p className="text-xs text-[#F1F1F1] font-michroma uppercase tracking-wider font-medium">
-                    Defect map · {totalDefects} defect{totalDefects !== 1 ? "s" : ""}
+                    Defect map · {data.defects_reviewed}/{data.defects_total}{" "}
+                    reviewed
                   </p>
 
                   {/* Image selector tabs */}
@@ -174,10 +180,14 @@ export default function SubmissionDetailPage() {
                       {imageEntries.map(([key, img]) => (
                         <button
                           key={key}
-                          onClick={() => setSelectedImageKey(key)}
+                          onClick={() => {
+                            setSelectedImageKey(key);
+                            setSelectedDefect(null);
+                          }}
                           className="px-3 py-1 rounded-full text-[11px] font-michroma transition-all duration-150 relative"
                           style={{
-                            background: activeKey === key ? "#C3F001" : "transparent",
+                            background:
+                              activeKey === key ? "#C3F001" : "transparent",
                             color: activeKey === key ? "#171717" : "#888888",
                           }}
                         >
@@ -186,7 +196,8 @@ export default function SubmissionDetailPage() {
                             <span
                               className="ml-1 inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-[9px]"
                               style={{
-                                background: activeKey === key ? "#171717" : "#333",
+                                background:
+                                  activeKey === key ? "#171717" : "#333",
                                 color: activeKey === key ? "#C3F001" : "#aaa",
                               }}
                             >
@@ -201,8 +212,12 @@ export default function SubmissionDetailPage() {
 
                 {activeImage && (
                   <DefectMap
+                    imageKey={activeKey}
                     imageUrl={activeImage.image_url}
                     defects={activeImage.defects}
+                    onReviewClick={(imageKey, defect) =>
+                      setSelectedDefect({ imageKey, defect })
+                    }
                   />
                 )}
               </div>
@@ -220,8 +235,10 @@ export default function SubmissionDetailPage() {
 
             <ReviewPanel
               submissionId={data.submission_id}
-              currentStatus={data.status}
-              currentNotes={data.admin_notes}
+              defectsTotal={data.defects_total}
+              defectsReviewed={data.defects_reviewed}
+              selectedDefect={selectedDefect}
+              onClearSelection={() => setSelectedDefect(null)}
             />
 
             {/* Comic info */}

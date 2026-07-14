@@ -8,11 +8,12 @@ import {
   submissionService,
   SubmissionListParams,
   ReviewPayload,
+  ReviewDefectPayload,
 } from "@/services/submissionService";
 
 import { toast } from "sonner";
 
-// Query Keys 
+// Query Keys
 
 export const submissionKeys = {
   all: ["submissions"] as const,
@@ -88,6 +89,39 @@ export function useReviewSubmission() {
 
     onError: () => {
       toast.error("Review failed. Please try again.");
+    },
+  });
+}
+
+export function useReviewDefect() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      submissionId,
+      payload,
+    }: {
+      submissionId: string;
+      payload: ReviewDefectPayload;
+    }) => submissionService.reviewDefect(submissionId, payload),
+
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: submissionKeys.detail(data.submission_id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: submissionKeys.lists(),
+      });
+
+      toast.success(
+        data.defect_status === "approved"
+          ? "Defect approved."
+          : "Defect rejected.",
+      );
+    },
+
+    onError: () => {
+      toast.error("Defect review failed. Please try again.");
     },
   });
 }

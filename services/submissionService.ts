@@ -4,6 +4,7 @@ import apiClient from "@/lib/axios";
 
 export type SubmissionStatus = "pending" | "approved" | "rejected" | "reviewed";
 export type DefectSeverity = "negligible" | "minor" | "moderate" | "major";
+export type DefectReviewStatus = "approved" | "rejected";
 
 export interface SubmissionUser {
   user_id: number;
@@ -12,13 +13,22 @@ export interface SubmissionUser {
   email: string;
 }
 
+export interface DefectReview {
+  status: DefectReviewStatus;
+  admin_id: number;
+  notes: string | null;
+  reviewed_at: string;
+}
+
 export interface Defect {
   defect_key: string;
   display_name: string;
   category: string;
   x: number; // 0–1 relative position
   y: number;
-  severity: DefectSeverity;
+  severity: DefectSeverity | null;
+  defect_index: number;
+  review: DefectReview | null;
 }
 
 export interface ComicScan {
@@ -29,6 +39,7 @@ export interface ComicScan {
     issue_number: string;
     publisher: string;
     year: number;
+    identification_source?: string;
   };
   combined_grade_value: string;
   combined_grade_label: string;
@@ -38,7 +49,11 @@ export interface ComicScan {
 export interface SubmissionImage {
   image_url: string;
   defects: Defect[];
-  review: string | null;
+}
+
+export interface ReviewedBy {
+  user_id: number;
+  full_name: string;
 }
 
 export interface SubmissionListItem {
@@ -69,7 +84,10 @@ export interface SubmissionDetail {
   user: SubmissionUser;
   comic_scan: ComicScan;
   admin_notes: string | null;
-  reviewed_by: string | null;
+  reviewed_by: ReviewedBy | null;
+  defects_total: number;
+  defects_approved: number;
+  defects_reviewed: number;
 }
 
 export interface SubmissionListResponse {
@@ -77,6 +95,12 @@ export interface SubmissionListResponse {
   offset: number;
   limit: number;
   submissions: SubmissionListItem[];
+}
+
+export interface SubmissionListParams {
+  limit?: number;
+  offset?: number;
+  status?: SubmissionStatus;
 }
 
 export interface ReviewPayload {
@@ -91,10 +115,23 @@ export interface ReviewResponse {
   admin_notes: string | null;
 }
 
-export interface SubmissionListParams {
-  limit?: number;
-  offset?: number;
-  status?: SubmissionStatus;
+export interface ReviewDefectPayload {
+  image_key: string;
+  defect_index: number;
+  status: DefectReviewStatus;
+  notes?: string;
+}
+
+export interface ReviewDefectResponse {
+  success: boolean;
+  submission_id: string;
+  image_key: string;
+  defect_index: number;
+  defect_status: DefectReviewStatus;
+  overall_status: SubmissionStatus;
+  defects_reviewed: number;
+  defects_total: number;
+  coins_awarded: number;
 }
 
 // Service
@@ -105,12 +142,12 @@ export const submissionService = {
    * Paginated list, optionally filtered by status.
    */
   getSubmissions: async (
-    params: SubmissionListParams = {}
+    params: SubmissionListParams = {},
   ): Promise<SubmissionListResponse> => {
     const { limit = 50, offset = 0, status } = params;
     const response = await apiClient.get<SubmissionListResponse>(
       "/admin/manual-defect-submissions",
-      { params: { limit, offset, ...(status ? { status } : {}) } }
+      { params: { limit, offset, ...(status ? { status } : {}) } },
     );
     return response.data;
   },
@@ -121,7 +158,7 @@ export const submissionService = {
    */
   getSubmission: async (submissionId: string): Promise<SubmissionDetail> => {
     const response = await apiClient.get<SubmissionDetail>(
-      `/admin/manual-defect-submissions/${submissionId}`
+      `/admin/manual-defect-submissions/${submissionId}`,
     );
     return response.data;
   },
@@ -136,22 +173,37 @@ export const submissionService = {
   getPreviewBlob: async (submissionId: string): Promise<string> => {
     const response = await apiClient.get(
       `/admin/manual-defect-submissions/${submissionId}/preview`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     return URL.createObjectURL(response.data);
   },
 
   /**
    * PATCH /admin/manual-defect-submissions/:id/review
-   * Approve or reject a submission with optional admin notes.
+   * Approve or reject an entire submission with optional admin notes.
    */
   reviewSubmission: async (
     submissionId: string,
-    payload: ReviewPayload
+    payload: ReviewPayload,
   ): Promise<ReviewResponse> => {
     const response = await apiClient.patch<ReviewResponse>(
       `/admin/manual-defect-submissions/${submissionId}/review`,
-      payload
+      payload,
+    );
+    return response.data;
+  },
+
+  /**
+   * PATCH /admin/manual-defect-submissions/:id/review-defect
+   * Approve or reject a single defect within a submission.
+   */
+  reviewDefect: async (
+    submissionId: string,
+    payload: ReviewDefectPayload,
+  ): Promise<ReviewDefectResponse> => {
+    const response = await apiClient.patch<ReviewDefectResponse>(
+      `/admin/manual-defect-submissions/${submissionId}/review-defect`,
+      payload,
     );
     return response.data;
   },

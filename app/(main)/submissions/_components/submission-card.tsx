@@ -2,7 +2,13 @@
 
 import { SubmissionListItem } from "@/services/submissionService";
 import { useRouter } from "next/navigation";
-import { User, Clock, AlertTriangle, ChevronRight } from "lucide-react";
+import {
+  User,
+  Clock,
+  AlertTriangle,
+  ChevronRight,
+  ScanLine,
+} from "lucide-react";
 import Image from "next/image";
 
 interface Props {
@@ -44,13 +50,19 @@ export default function SubmissionCard({ submission }: Props) {
       <div className="flex items-stretch gap-0">
         {/* Thumbnail */}
         <div className="relative w-24 shrink-0 bg-[#111111B2]">
-          <Image
-            src={submission.front_image_url}
-            alt="Comic cover"
-            fill
-            className="object-cover"
-            sizes="80px"
-          />
+          {submission.front_image_url ? (
+            <Image
+              src={submission.front_image_url}
+              alt="Comic cover"
+              fill
+              className="object-cover"
+              sizes="96px"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <ScanLine size={20} className="text-zinc-700" />
+            </div>
+          )}
         </div>
 
         {/* Content */}
