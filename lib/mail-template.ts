@@ -5,8 +5,6 @@ type BetaWelcomeEmailLinks = {
   contactEmail: string;
   facebookUrl: string;
   instagramUrl: string;
-  xUrl: string;
-  whatsappUrl: string;
 };
 
 const LOGO_TOP_URL = "https://comicsmithai.net/Comic_Top.png";
@@ -23,8 +21,6 @@ export function getBetaWelcomeEmailHtml(
     contactEmail,
     facebookUrl,
     instagramUrl,
-    xUrl,
-    whatsappUrl,
   } = links;
 
   const websiteDisplay = websiteUrl.replace(/^https?:\/\//, "");
@@ -292,36 +288,6 @@ export function getBetaWelcomeEmailHtml(
                                             width="20"
                                             height="20"
                                             alt="Instagram"
-                                            style="display: block"
-                                          />
-                                        </a>
-                                      </td>
-                                      <td style="padding: 0 5px">
-                                        <a
-                                          href="${xUrl}"
-                                          target="_blank"
-                                          aria-label="X"
-                                        >
-                                          <img
-                                            src="https://comicsmithai.net/x.png"
-                                            width="20"
-                                            height="20"
-                                            alt="X"
-                                            style="display: block"
-                                          />
-                                        </a>
-                                      </td>
-                                      <td style="padding: 0 5px">
-                                        <a
-                                          href="${whatsappUrl}"
-                                          target="_blank"
-                                          aria-label="Whatsapp"
-                                        >
-                                          <img
-                                            src="https://comicsmithai.net/whatsapp.png"
-                                            width="20"
-                                            height="20"
-                                            alt="YouTube"
                                             style="display: block"
                                           />
                                         </a>
