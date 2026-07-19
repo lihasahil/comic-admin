@@ -3,21 +3,16 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import {
-  useScanCorrectionCoverMatch,
-  useScanCorrectionDetail,
-} from "@/hooks/useScanCorrections";
-import {
-  ArrowLeft,
-  Loader2,
-  User,
-  Barcode,
-  ImageOff,
-  ScanEye,
-} from "lucide-react";
+  useCorrectionCoverMatch,
+  useScanCollectionCorrectionDetail,
+} from "@/hooks/use-scan-collection-correction";
+import { correctionDisputesIdentity } from "@/services/scan-collection-correction.service";
+import { ArrowLeft, Loader2, User, ImageOff, ScanEye } from "lucide-react";
 import Image from "next/image";
 import CatalogSearchPanel from "../_components/catalog-search-panel";
 import ReviewPanel from "../_components/review-panel";
-import CoverMatchModal from "../../scan-collection-correction/_components/cover-match-modal";
+import { OtherFieldsDiff } from "../_components/other-fields-diff";
+import CoverMatchModal from "../_components/cover-match-modal";
 
 function Field({
   label,
@@ -37,16 +32,18 @@ function Field({
   );
 }
 
-export default function ScanCorrectionDetailPage() {
+export default function ScanCollectionCorrectionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const correctionId = Number(id);
   const [selectedCatalogId, setSelectedCatalogId] = useState<number | null>(
     null,
   );
 
-  const coverMatch = useScanCorrectionCoverMatch();
+  const { data, isLoading, isError } =
+    useScanCollectionCorrectionDetail(correctionId);
 
-  const { data, isLoading, isError } = useScanCorrectionDetail(id);
+  const coverMatch = useCorrectionCoverMatch();
 
   if (isLoading) {
     return (
@@ -59,7 +56,7 @@ export default function ScanCorrectionDetailPage() {
   if (isError || !data) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3">
-        <p className="text-sm text-zinc-500">Scan correction not found.</p>
+        <p className="text-sm text-zinc-500">Correction not found.</p>
         <button
           onClick={() => router.back()}
           className="text-xs text-amber-400 hover:underline"
@@ -69,6 +66,8 @@ export default function ScanCorrectionDetailPage() {
       </div>
     );
   }
+
+  const identityDisputed = correctionDisputesIdentity(data);
 
   return (
     <div className="min-h-screen text-white">
@@ -104,7 +103,7 @@ export default function ScanCorrectionDetailPage() {
             </div>
           </div>
           <button
-            onClick={() => coverMatch.mutate(id)}
+            onClick={() => coverMatch.mutate(correctionId)}
             disabled={coverMatch.isPending}
             className="flex items-center gap-1.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-3 py-2 text-xs font-michroma text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
           >
@@ -130,12 +129,10 @@ export default function ScanCorrectionDetailPage() {
                 style={{ paddingBottom: "50%" }}
               >
                 {data.scan_thumbnail ? (
-                  <Image
+                  <img
                     src={data.scan_thumbnail}
                     alt="Comic scan"
-                    fill
-                    className="object-contain"
-                    sizes="700px"
+                    className="absolute inset-0 w-full h-full object-contain"
                   />
                 ) : (
                   <ImageOff
@@ -162,7 +159,7 @@ export default function ScanCorrectionDetailPage() {
                   <Field label="Year" value={data.system_found.year} />
                   <Field
                     label="Source"
-                    value={data.system_found.identification_source}
+                    value={data.system_found.identification_source ?? null}
                   />
                   <Field
                     label="Catalog ID"
@@ -174,22 +171,19 @@ export default function ScanCorrectionDetailPage() {
               <div className="rounded-xl bg-[#111111B2] border border-primary/40 p-4">
                 <p className="text-xs text-primary font-michroma uppercase tracking-wider font-medium mb-3">
                   User says
+                  {identityDisputed && (
+                    <span className="text-amber-400 normal-case tracking-normal">
+                      {" "}
+                      — identity disputed, verify
+                    </span>
+                  )}
                 </p>
                 <dl className="space-y-2.5 font-sf-pro">
                   <Field label="Title" value={data.user_says.title} />
                   <Field label="Issue" value={data.user_says.issue_number} />
                   <Field label="Publisher" value={data.user_says.publisher} />
                   <Field label="Year" value={data.user_says.year} />
-                  {data.user_says.barcode && (
-                    <div>
-                      <dt className="text-[10px] text-zinc-600 uppercase tracking-wider flex items-center gap-1">
-                        <Barcode size={10} /> Barcode
-                      </dt>
-                      <dd className="text-xs text-zinc-400 font-mono mt-0.5">
-                        {data.user_says.barcode}
-                      </dd>
-                    </div>
-                  )}
+                  <Field label="Barcode" value={data.user_says.barcode} />
                   {data.user_says.note && (
                     <div>
                       <dt className="text-[10px] text-zinc-600 uppercase tracking-wider">
@@ -204,9 +198,17 @@ export default function ScanCorrectionDetailPage() {
               </div>
             </div>
 
+            {/* Other fields diff */}
+            <div className="rounded-xl bg-[#111111B2] border border-[#FFFFFF33] p-4">
+              <p className="text-xs text-[#F1F1F1] font-michroma uppercase tracking-wider font-medium mb-3">
+                Other field changes
+              </p>
+              <OtherFieldsDiff other_fields={data.other_fields} />
+            </div>
+
             {/* Catalog search */}
             <CatalogSearchPanel
-              correctionId={id}
+              correctionId={data.correction_id}
               selectedId={selectedCatalogId}
               onSelect={setSelectedCatalogId}
             />
@@ -215,10 +217,16 @@ export default function ScanCorrectionDetailPage() {
           {/* Right column */}
           <div className="space-y-4">
             <ReviewPanel
-              correctionId={id}
+              correctionId={data.correction_id}
               currentStatus={data.status}
               currentNote={data.admin_note}
-              selectedCatalogId={selectedCatalogId}
+              selectedCatalogId={
+                selectedCatalogId ?? data.admin_catalog_id ?? null
+              }
+              identityDisputed={identityDisputed}
+              onReviewed={() =>
+                router.push("/admin/scan-collection-corrections")
+              }
             />
 
             {/* User info */}

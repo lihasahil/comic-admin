@@ -1,18 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { RefreshCw, ClipboardList, Loader2, Check, X } from "lucide-react";
+import Link from "next/link";
+import { RefreshCw, ClipboardList, Loader2, ChevronRight } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useScanCollectionCorrections,
   scanCollectionCorrectionKeys,
 } from "@/hooks/use-scan-collection-correction";
-import {
-  ScanCollectionCorrection,
-  CorrectionStatus,
-} from "@/services/scan-collection-correction.service";
-import { ReviewCorrectionModal } from "./_components/review-correction-modal";
-import { OtherFieldsDiff } from "./_components/other-fields-diff";
+import { CorrectionStatus } from "@/services/scan-collection-correction.service";
 
 const LIMIT = 50;
 
@@ -28,10 +24,6 @@ const STATUS_TABS: { label: string; value: StatusFilter }[] = [
 export default function ScanCollectionCorrectionsPage() {
   const [status, setStatus] = useState<StatusFilter>("pending");
   const [offset, setOffset] = useState(0);
-  const [reviewTarget, setReviewTarget] = useState<{
-    correction: ScanCollectionCorrection;
-    action: "approve" | "reject";
-  } | null>(null);
   const queryClient = useQueryClient();
 
   const params = {
@@ -132,20 +124,21 @@ export default function ScanCollectionCorrectionsPage() {
         ) : (
           <div className="space-y-3">
             {items.map((item) => (
-              <div
+              <Link
                 key={item.correction_id}
-                className="flex flex-col md:flex-row gap-4 font-sf-pro rounded-lg border border-zinc-800 bg-zinc-900/50 p-4"
+                href={`/scan-collection-correction/${item.correction_id}`}
+                className="flex items-center gap-4 font-sf-pro rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 hover:border-zinc-700 transition-colors"
               >
                 <img
                   src={item.scan_thumbnail}
                   alt={item.system_found.title}
-                  className="w-full md:w-24 h-32 md:h-32 object-cover rounded-md shrink-0"
+                  className="w-14 h-20 object-cover rounded-md shrink-0"
                 />
 
-                <div className="flex-1 min-w-0 space-y-2">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between flex-wrap gap-2">
                     <div>
-                      <p className="text-sm font-medium text-white">
+                      <p className="text-sm font-medium text-white truncate">
                         {item.system_found.title} #
                         {item.system_found.issue_number}
                       </p>
@@ -153,9 +146,18 @@ export default function ScanCollectionCorrectionsPage() {
                         {item.system_found.publisher} · {item.system_found.year}{" "}
                         · {item.comic_scan_id}
                       </p>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        Submitted by {item.user.full_name}
+                        {item.identity_disputed && (
+                          <span className="text-amber-400">
+                            {" "}
+                            · identity disputed
+                          </span>
+                        )}
+                      </p>
                     </div>
                     <span
-                      className={`text-[10px] font-michroma px-2 py-1 rounded-full ${
+                      className={`text-[10px] font-michroma px-2 py-1 rounded-full shrink-0 ${
                         item.status === "pending"
                           ? "bg-amber-500/10 text-amber-400"
                           : item.status === "approved"
@@ -166,79 +168,10 @@ export default function ScanCollectionCorrectionsPage() {
                       {item.status.toUpperCase()}
                     </span>
                   </div>
-
-                  <p className="text-xs text-zinc-500">
-                    Submitted by {item.user.full_name} ({item.user.email})
-                  </p>
-
-                  {(item.user_says.title ||
-                    item.user_says.issue_number ||
-                    item.user_says.publisher ||
-                    item.user_says.year ||
-                    item.user_says.barcode) && (
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-zinc-400">
-                      {item.user_says.title && (
-                        <p>User title: {item.user_says.title}</p>
-                      )}
-                      {item.user_says.issue_number && (
-                        <p>User issue #: {item.user_says.issue_number}</p>
-                      )}
-                      {item.user_says.publisher && (
-                        <p>User publisher: {item.user_says.publisher}</p>
-                      )}
-                      {item.user_says.year && (
-                        <p>User year: {item.user_says.year}</p>
-                      )}
-                      {item.user_says.barcode && (
-                        <p>User barcode: {item.user_says.barcode}</p>
-                      )}
-                    </div>
-                  )}
-
-                  {item.user_says.note && (
-                    <p className="text-xs text-zinc-400 italic">
-                      "{item.user_says.note}"
-                    </p>
-                  )}
-
-                  <OtherFieldsDiff other_fields={item.other_fields} />
-
-                  {item.admin_note && (
-                    <p className="text-xs text-zinc-500">
-                      Admin note: {item.admin_note}
-                    </p>
-                  )}
-
-                  {item.status === "pending" && (
-                    <div className="flex gap-2 pt-2">
-                      <button
-                        onClick={() =>
-                          setReviewTarget({
-                            correction: item,
-                            action: "approve",
-                          })
-                        }
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-michroma bg-[#C3F001] text-[#171717] hover:opacity-90"
-                      >
-                        <Check size={12} />
-                        Approve
-                      </button>
-                      <button
-                        onClick={() =>
-                          setReviewTarget({
-                            correction: item,
-                            action: "reject",
-                          })
-                        }
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-michroma bg-zinc-900 border border-zinc-800 text-red-400 hover:bg-red-500/10"
-                      >
-                        <X size={12} />
-                        Reject
-                      </button>
-                    </div>
-                  )}
                 </div>
-              </div>
+
+                <ChevronRight size={16} className="text-zinc-600 shrink-0" />
+              </Link>
             ))}
           </div>
         )}
@@ -268,12 +201,6 @@ export default function ScanCollectionCorrectionsPage() {
           </div>
         )}
       </div>
-
-      <ReviewCorrectionModal
-        correction={reviewTarget?.correction ?? null}
-        action={reviewTarget?.action ?? null}
-        onClose={() => setReviewTarget(null)}
-      />
     </div>
   );
 }

@@ -35,6 +35,10 @@ export interface OtherFields {
   submitted: Record<string, unknown>;
 }
 
+/**
+ * Full correction record — used on the detail page.
+ * Matches GET /admin/scan-collection-corrections/{id}
+ */
 export interface ScanCollectionCorrection {
   correction_id: number;
   comic_scan_id: string;
@@ -51,11 +55,30 @@ export interface ScanCollectionCorrection {
   admin_note: string | null;
 }
 
+/**
+ * Lightweight row used on the list page — only what's needed to render
+ * a card and decide whether to review it. Full detail is fetched on
+ * the detail page via getCorrectionDetail().
+ */
+export interface ScanCollectionCorrectionSummary {
+  correction_id: number;
+  comic_scan_id: string;
+  status: CorrectionStatus;
+  created_at: string;
+  scan_thumbnail: string;
+  user: CorrectionUser;
+  system_found: Pick<
+    SystemFound,
+    "title" | "issue_number" | "publisher" | "year"
+  >;
+  identity_disputed: boolean;
+}
+
 export interface ScanCollectionCorrectionListResponse {
   total: number;
   offset: number;
   limit: number;
-  items: ScanCollectionCorrection[];
+  items: ScanCollectionCorrectionSummary[];
 }
 
 export interface ScanCollectionCorrectionListParams {
@@ -113,6 +136,12 @@ export interface CatalogSearchParams {
   limit?: number;
 }
 
+export interface CoverMatchResponse {
+  correction_id: number;
+  cover_match_score: number;
+  cover_match_flag: boolean;
+}
+
 /**
  * A correction disputes core identity (title/issue/publisher/year)
  * if the user submitted a value for any of those fields.
@@ -132,6 +161,7 @@ export function correctionDisputesIdentity(
 export const scanCollectionCorrectionService = {
   /**
    * GET /admin/scan-collection-corrections
+   * Returns lightweight rows for the list view.
    */
   getCorrections: async (
     params: ScanCollectionCorrectionListParams = {},
@@ -146,6 +176,19 @@ export const scanCollectionCorrectionService = {
           ...(status ? { status } : {}),
         },
       },
+    );
+    return response.data;
+  },
+
+  /**
+   * GET /admin/scan-collection-corrections/{correction_id}
+   * Returns the full record for the detail page.
+   */
+  getCorrectionDetail: async (
+    correctionId: number,
+  ): Promise<ScanCollectionCorrection> => {
+    const response = await apiClient.get<ScanCollectionCorrection>(
+      `/admin/scan-collection-corrections/${correctionId}`,
     );
     return response.data;
   },
@@ -167,7 +210,6 @@ export const scanCollectionCorrectionService = {
   /**
    * GET /admin/scan-collection-corrections/{correction_id}/catalog-search
    */
-
   searchCatalog: async (
     correctionId: number,
     limit = 20,
@@ -175,6 +217,16 @@ export const scanCollectionCorrectionService = {
     const response = await apiClient.get<CatalogSearchResponse>(
       `/admin/scan-collection-corrections/${correctionId}/catalog-search`,
       { params: { limit } },
+    );
+    return response.data;
+  },
+
+  /**
+   * GET /admin/scan-collection-corrections/{correction_id}/cover-match
+   */
+  getCoverMatch: async (correctionId: number): Promise<CoverMatchResponse> => {
+    const response = await apiClient.get<CoverMatchResponse>(
+      `/admin/scan-collection-corrections/${correctionId}/cover-match`,
     );
     return response.data;
   },

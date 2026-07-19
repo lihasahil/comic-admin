@@ -8,7 +8,6 @@ import {
   scanCollectionCorrectionService,
   ScanCollectionCorrectionListParams,
   ReviewCorrectionPayload,
-  CatalogSearchParams,
 } from "@/services/scan-collection-correction.service";
 
 /* ============================================================
@@ -20,6 +19,9 @@ export const scanCollectionCorrectionKeys = {
   lists: () => [...scanCollectionCorrectionKeys.all, "list"] as const,
   list: (params: ScanCollectionCorrectionListParams) =>
     [...scanCollectionCorrectionKeys.lists(), params] as const,
+  details: () => [...scanCollectionCorrectionKeys.all, "detail"] as const,
+  detail: (correctionId: number) =>
+    [...scanCollectionCorrectionKeys.details(), correctionId] as const,
   catalogSearch: (correctionId: number) =>
     [
       ...scanCollectionCorrectionKeys.all,
@@ -33,7 +35,7 @@ export const scanCollectionCorrectionKeys = {
 ============================================================ */
 
 /**
- * Fetch paginated list of scan collection corrections.
+ * Fetch paginated list of scan collection corrections (summary rows).
  */
 export function useScanCollectionCorrections(
   params: ScanCollectionCorrectionListParams = {},
@@ -43,6 +45,21 @@ export function useScanCollectionCorrections(
     queryFn: () => scanCollectionCorrectionService.getCorrections(params),
     placeholderData: keepPreviousData,
     staleTime: 30_000,
+  });
+}
+
+/**
+ * Fetch the full record for a single correction (detail page).
+ */
+export function useScanCollectionCorrectionDetail(correctionId: number | null) {
+  return useQuery({
+    queryKey: scanCollectionCorrectionKeys.detail(correctionId ?? -1),
+    queryFn: () =>
+      scanCollectionCorrectionService.getCorrectionDetail(
+        correctionId as number,
+      ),
+    enabled: correctionId !== null && !Number.isNaN(correctionId),
+    staleTime: 15_000,
   });
 }
 
@@ -60,20 +77,16 @@ export function useReviewScanCollectionCorrection() {
       payload: ReviewCorrectionPayload;
     }) =>
       scanCollectionCorrectionService.reviewCorrection(correctionId, payload),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: scanCollectionCorrectionKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: scanCollectionCorrectionKeys.detail(variables.correctionId),
       });
     },
   });
 }
-
-/**
- * Search the catalog for a possible match on a given correction.
- * Runs with no query on mount (returns barcode_matches + suggestions),
- * and refetches as the admin types a search query.
- */
-// src/hooks/useScanCollectionCorrections.ts
 
 /**
  * Fetch catalog matches for a correction. correction_id alone scopes
@@ -86,5 +99,16 @@ export function useCorrectionCatalogSearch(correctionId: number | null) {
       scanCollectionCorrectionService.searchCatalog(correctionId as number),
     enabled: correctionId !== null,
     staleTime: 15_000,
+  });
+}
+
+/**
+ * Triggers a cover-match check for a correction on demand (button click),
+ * rather than fetching automatically — hence a mutation, not a query.
+ */
+export function useCorrectionCoverMatch() {
+  return useMutation({
+    mutationFn: (correctionId: number) =>
+      scanCollectionCorrectionService.getCoverMatch(correctionId),
   });
 }

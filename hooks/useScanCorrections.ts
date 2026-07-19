@@ -51,9 +51,10 @@ export function useScanCorrectionDetail(correctionId: string) {
   return useQuery({
     queryKey: scanCorrectionKeys.detail(correctionId),
     queryFn: async () => {
-      const cachedLists = queryClient.getQueriesData<ScanCorrectionListResponse>({
-        queryKey: scanCorrectionKeys.lists(),
-      });
+      const cachedLists =
+        queryClient.getQueriesData<ScanCorrectionListResponse>({
+          queryKey: scanCorrectionKeys.lists(),
+        });
       for (const [, data] of cachedLists) {
         const found = data?.items.find(
           (item) => String(item.correction_id) === correctionId,
@@ -82,8 +83,7 @@ export function useScanCorrectionCatalogSearch(
 ) {
   return useQuery({
     queryKey: scanCorrectionKeys.catalogSearch(correctionId, limit),
-    queryFn: () =>
-      scanCorrectionService.getCatalogSearch(correctionId, limit),
+    queryFn: () => scanCorrectionService.getCatalogSearch(correctionId, limit),
     enabled: !!correctionId,
     staleTime: 60_000,
   });
@@ -117,6 +117,24 @@ export function useReviewScanCorrection() {
     onError: (error: AxiosError<{ detail?: string }>) => {
       toast.error(
         error.response?.data?.detail ?? "Review failed. Please try again.",
+      );
+    },
+  });
+}
+
+/**
+ * Triggers a cover-match check on demand (button click) rather than
+ * fetching automatically — hence a mutation, not a query.
+ */
+export function useScanCorrectionCoverMatch() {
+  return useMutation({
+    mutationFn: (correctionId: number | string) =>
+      scanCorrectionService.getCoverMatch(correctionId),
+
+    onError: (error: AxiosError<{ detail?: string }>) => {
+      toast.error(
+        error.response?.data?.detail ??
+          "Cover match check failed. Please try again.",
       );
     },
   });

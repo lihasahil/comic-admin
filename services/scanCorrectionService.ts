@@ -1,6 +1,6 @@
 import apiClient from "@/lib/axios";
 
-// Types 
+// Types
 
 export type ScanCorrectionStatus = "pending" | "approved" | "rejected";
 
@@ -96,6 +96,12 @@ export interface ReviewScanCorrectionResponse {
   };
 }
 
+export interface ScanCorrectionCoverMatchResponse {
+  correction_id: number;
+  cover_match_score: number;
+  cover_match_flag: boolean;
+}
+
 // Service
 
 const BASE = "/admin/scan-corrections";
@@ -106,7 +112,7 @@ export const scanCorrectionService = {
    * Paginated list, optionally filtered by status.
    */
   getCorrections: async (
-    params: ScanCorrectionListParams = {}
+    params: ScanCorrectionListParams = {},
   ): Promise<ScanCorrectionListResponse> => {
     const { limit = 50, offset = 0, status } = params;
     const response = await apiClient.get<ScanCorrectionListResponse>(BASE, {
@@ -121,11 +127,11 @@ export const scanCorrectionService = {
    */
   getCatalogSearch: async (
     correctionId: number | string,
-    limit = 20
+    limit = 20,
   ): Promise<ScanCorrectionCatalogSearchResponse> => {
     const response = await apiClient.get<ScanCorrectionCatalogSearchResponse>(
       `${BASE}/${correctionId}/catalog-search`,
-      { params: { limit } }
+      { params: { limit } },
     );
     return response.data;
   },
@@ -136,11 +142,24 @@ export const scanCorrectionService = {
    */
   reviewCorrection: async (
     correctionId: number | string,
-    payload: ReviewScanCorrectionPayload
+    payload: ReviewScanCorrectionPayload,
   ): Promise<ReviewScanCorrectionResponse> => {
     const response = await apiClient.patch<ReviewScanCorrectionResponse>(
       `${BASE}/${correctionId}`,
-      payload
+      payload,
+    );
+    return response.data;
+  },
+
+  /**
+   * GET /admin/scan-corrections/:id/cover-match
+   * Runs a cover-image similarity check against the matched catalog comic.
+   */
+  getCoverMatch: async (
+    correctionId: number | string,
+  ): Promise<ScanCorrectionCoverMatchResponse> => {
+    const response = await apiClient.get<ScanCorrectionCoverMatchResponse>(
+      `${BASE}/${correctionId}/cover-match`,
     );
     return response.data;
   },
