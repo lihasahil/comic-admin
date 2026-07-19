@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useUsers, useDeleteUser, userKeys } from "@/hooks/useUsers";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { RefreshCw, Users, Loader2, Trash2 } from "lucide-react";
+import { RefreshCw, Users, Loader2, Trash2, List } from "lucide-react";
 import { User, UserRole } from "@/services/userService";
 import UserFilter, { RoleFilter } from "./_components/user-filter";
 import UserStats from "./_components/user-stats";
@@ -12,10 +12,12 @@ import UserTable from "./_components/user-table";
 import { CreateAdminModal } from "./_components/create-admin-modal";
 import { SendEmailModal } from "../_components/send-email-modal";
 import { AssignFounderBadgeModal } from "./_components/assign-founder-badge-modal";
+import { useRouter } from "next/navigation";
 
 const LIMIT = 50;
 
 export default function UsersPage() {
+  const router = useRouter();
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [search, setSearch] = useState("");
   const [offset, setOffset] = useState(0);
@@ -84,7 +86,15 @@ export default function UsersPage() {
               Manage all registered users
             </p>
           </div>
-          <div className="flex gap-4">
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              onClick={() => router.push("/users/beta-testers")}
+              disabled={isFetching}
+              className="flex items-center justify-center font-michroma w-full md:w-xs bg-[#C3F001] text-[#171717] gap-2 rounded-lg px-5 py-2.5 text-[14px] transition-opacity hover:opacity-90 active:opacity-80"
+            >
+              <List size={14} />
+              Beta Tester List
+            </button>
             <button
               onClick={handleRefresh}
               disabled={isFetching}

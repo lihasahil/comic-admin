@@ -41,6 +41,11 @@ const navItems = [
   { href: "/submissions", label: "Defect Submissions", icon: Lightbulb },
   { href: "/catalog", label: "Comic Catalog", icon: BookOpen },
   { href: "/scan-corrections", label: "Scan Corrections", icon: ScanSearch },
+  {
+    href: "/scan-collection-correction",
+    label: "Collection Corrections",
+    icon: ScanSearch,
+  },
   { href: "/comic-image", label: "Comic Image", icon: Image },
 ];
 

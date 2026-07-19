@@ -8,6 +8,11 @@ const routeLabels: Record<string, string> = {
   "/feedback": "Manage User Feedback",
   "/scans": "Manage User Comic Scan",
   "/submissions": "Manage User Manual Grading",
+  "/comic-image": "Comic Image",
+  "/scan-corrections": "Scan Corrections",
+  "/scan-collection-corrections": "Scan Collection Corrections",
+  "/catalog": "Catalog",
+  "/users/beta-testers": "Beta Testers",
 };
 
 export function Breadcrumb() {

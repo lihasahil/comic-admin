@@ -32,7 +32,7 @@ export default function RootLayout({
       lang="en"
       className={`${michroma.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-[#171717] flex flex-col">
+      <body className="min-h-full bg-[#171717] flex flex-col font-sf-pro">
         <Providers>
           <TooltipProvider>
             <Toaster />
